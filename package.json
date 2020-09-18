@@ -1,0 +1,13 @@
+{
+  "name": "virtual-venue",
+  "version": "1.0.0",
+  "description": "A virtual meeting venue with discord vc integration!",
+  "main": "index.js",
+  "repository": "https://github.com/tams-cso/virtual-venue",
+  "author": "Michael Zhao <michaelzhao314@gmail.com>",
+  "license": "none",
+  "private": false,
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

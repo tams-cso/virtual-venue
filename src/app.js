@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server, {});
+const PORT = 8082;
 
 app.get('/', function (req, res, next) {
     res.sendFile(__dirname + '/client/index.html');
@@ -9,7 +10,7 @@ app.get('/', function (req, res, next) {
 
 app.use('/client', express.static(__dirname + '/client'));
 
-server.listen(8080, () => console.log("Listening on port 8080!"));
+server.listen(PORT, () => console.log(`Listening on port ${PORT}!`));
 
 var socketList = {};
 var keys = {};

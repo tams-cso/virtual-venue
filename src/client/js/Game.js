@@ -66,7 +66,7 @@ function draw(players) {
     for (var i in players) {
         var p = players[i];
 
-        ctx.fillStyle = '#' + p.color.padStart(6, '0');
+        ctx.fillStyle = '#' + p.color;
         ctx.fillRect(p.x, p.y, 30, 30);
     }
 }

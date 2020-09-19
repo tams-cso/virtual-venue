@@ -23,7 +23,7 @@ io.sockets.on('connection', function(socket) {
 
     socket.id = count++;
     keys[socket.id] = {};
-    players[socket.id] = { x: 500, y: 500, color: randInt(0, 16777215).toString(16) };
+    players[socket.id] = { x: 500, y: 500, color: randInt(0, 16777215).toString(16).padStart(6, '0') };
     console.log(players[socket.id].color);
     socketList[socket.id] = socket;
     

@@ -2,54 +2,31 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 // const io = require('socket.io')(server, {});
-const Discord = require('discord.js');
-const client = new Discord.Client();
+const Bot = require('./server/bot');
 const config = require('./config.json');
 const PORT = 8082;
 
+// Express route
 app.get('/', function (req, res, next) {
     res.sendFile(__dirname + '/client/index.html');
 });
 
-app.use('/client', express.static(__dirname + '/client'));
-
-server.listen(PORT, () => console.log(`Listening on port ${PORT}!`));
-
-client.on('ready', () => console.log(`Logged in as ${client.user.tag}`));
-
-// Login with the bot token provided in creds.json
-client.login(config.botToken).then(() => {
-    // Virtual Venue only currently supports one Discord server at a time
-    if (client.guilds.cache.size > 1) {
-        console.error('ERROR: Bot in more than 1 server :(');
-        process.exit(-1);
-    }
-
-    var channels = client.guilds.cache.values().next().value.channels;
-    var gameCat = channels.cache
-        .filter((channel) => channel.type === 'category')
-        .find((channel) => channel.name === config.gameCategoryName);
-    if (gameCat === undefined) {
-        channels.create(config.gameCategoryName, { type: 'category' }).then((gameCat) => {
-            channels.create('main', { type: 'text', parent: gameCat });
-            config.vcs.forEach((data) => {
-                channels.create(data.name, { type: 'text', parent: gameCat });
-            });
-        });
-    } else {
-        channels.cache.forEach((value, key) => {
-            if (value.parentID === gameCat.id) {
-                value.delete();
-            }
-        });
-        channels.create('main', { type: 'text', parent: gameCat });
-        config.vcs.forEach((data) => {
-            channels.create(data.name, { type: 'text', parent: gameCat });
-        });
-    }
+app.get('/callback', function (req, res, next) {
+    res.send('call me back LOL');
 });
 
-client.on('message', (message) => {});
+app.get('/game', function (req, res, next) {
+    res.send('heyyyyyy');
+});
+
+// Use client folder resources statically
+app.use('/client', express.static(__dirname + '/client'));
+
+// Start Node.js server
+server.listen(PORT, () => console.log(`Listening on port ${PORT}!`));
+
+// Start discord bot
+Bot.runBot(config);
 
 // var socketList = {};
 // var players = {};

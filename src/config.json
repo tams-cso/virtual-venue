@@ -5,15 +5,17 @@
     "clientId": "757026244716920893",
     "clientSecret": "-RH-YRfSz5Kr2hq2rOls4XF6tS8edlZA",
     "gameCategoryName": "game",
+    "prefix": ">>",
+    "adminRole": "Admin",
     "vcs": [
         {
-            "name": "bob"
+            "name": "zany"
         },
         {
-            "name": "sponser 1"
+            "name": "woohoo"
         },
         {
-            "name": "yay"
+            "name": "jon"
         }
     ]
 }

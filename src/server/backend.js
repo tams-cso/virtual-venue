@@ -1,25 +1,29 @@
 const querystring = require('querystring');
 const config = require('../config.json');
+const { getAccessToken } = require('./discord-api');
 
 var authList = [];
-var authTimeout = {};
+var timeoutList = {};
 var joinList = {};
+var discordList = {};
 var socketList = {};
 var players = {};
 var count = 0;
 
-module.exports = (server) => {
+module.exports = async (server) => {
     const io = require('socket.io')(server, {});
 
     io.sockets.on('connection', function (socket) {
-        socket.on('client', () => {
+        socket.on('client', async () => {
+            count = 10;
             var authId = generateRandomString(16);
             authList.push(authId);
-            authTimeout[authId] = setTimeout(() => {
+
+            timeoutList[authId] = setTimeout(async () => {
                 const index = authList.indexOf(authId);
                 if (index > -1) authList.splice(index, 1);
-                delete authTimeout[authId];
-            });
+                delete timeoutList[authId];
+            }, 10000);
 
             var redirect =
                 'https://discord.com/api/oauth2/authorize?' +
@@ -32,6 +36,25 @@ module.exports = (server) => {
                 });
 
             socket.emit('authStart', { authId, redirect });
+        });
+
+        socket.on('callback', async (data) => {
+            if (authList.find(id => id === data.authId) === undefined) {
+                socket.emit('authFailed');
+                return;
+            }
+
+            socket.emit('authSuccess');
+
+            const tokens = await getAccessToken(data.code);
+            console.log(tokens);
+            
+        });
+
+        socket.on('callbackFailed', (authId) => {
+            const index = authList.indexOf(authId);
+            if (index > -1) authList.splice(index, 1);
+            delete timeoutList[authId];
         });
 
         // console.log('user connected!');

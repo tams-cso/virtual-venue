@@ -1,3 +1,4 @@
 node_modules
 creds.json
 yarn-error.log
+.node-persist

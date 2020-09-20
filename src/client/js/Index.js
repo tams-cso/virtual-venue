@@ -16,7 +16,7 @@ function setup() {
 }
 
 function login() {
-    cookies.set('id', authId, {sameSite: 'lax'});
+    cookies.set('state', authId, {sameSite: 'lax'});
     window.open(redirect);
     document.getElementById('index').style.display = "none";
     document.getElementById('after-redirect').style.display = "block";

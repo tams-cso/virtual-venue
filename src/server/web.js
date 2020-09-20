@@ -14,11 +14,11 @@ module.exports = () => {
     });
 
     app.get('/callback', function (req, res, next) {
-        res.send('call me back LOL');
+        res.sendFile(path.join(__dirname, '..', 'client', 'html', 'callback.html'));
     });
 
     app.get('/game', function (req, res, next) {
-        res.send('heyyyyyy');
+        res.sendFile(path.join(__dirname, '..', 'client', 'html', 'game.html'));
     });
 
     // Start Node.js server

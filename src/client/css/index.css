@@ -1,0 +1,12 @@
+#index {
+    text-align: center;
+}
+
+#after-redirect {
+    text-align: center;
+    display: none;
+}
+
+.submit {
+    margin: 1em;
+}

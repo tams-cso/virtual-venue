@@ -7,7 +7,16 @@
     <link rel="stylesheet" href="/client/css/index.css">
 </head>
 <body onload="setup()">
-
+    <div id="index">
+        <h1 class="title">Virtual Venue</h1>
+        <div class="description">This is a virtual place to meet and call through discord vcs! TODO: Update this</div>
+        <button class="submit" id="login-button" onclick="login()" disabled="true">Loading...</button>
+    </div>
+    <div id="after-redirect">
+        <h1>Waiting for authentication...</h1>
+        <p>Refresh page to try again</p>
+    </div>
+    <script crossorigin src="https://unpkg.com/universal-cookie@3/umd/universalCookie.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
     <script src="/client/js/Index.js"></script>
 </body>

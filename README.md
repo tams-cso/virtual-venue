@@ -9,3 +9,8 @@ git clone https://github.com/tams-cso/virtual-venue.git
 cd virtual-venue
 yarn install
 ```
+
+To run:
+```
+yarn start
+```

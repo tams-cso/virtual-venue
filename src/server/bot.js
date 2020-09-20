@@ -1,11 +1,12 @@
 const Discord = require('discord.js');
+const config = require('../config.json');
 
 /**
  * The main function for starting the discord bot
  */
-const runBot = (config) => {
+const runBot = () => {
     const client = new Discord.Client();
-    
+
     client.on('ready', () => console.log(`Logged in as ${client.user.tag}`));
 
     // Login with the bot token provided in creds.json

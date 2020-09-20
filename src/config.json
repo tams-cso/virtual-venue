@@ -1,0 +1,19 @@
+{
+    "authUrl": "https://discord.com/api/oauth2/authorize?client_id=757026244716920893&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fredirect&response_type=code&scope=identify",
+    "botUrl": "https://discord.com/api/oauth2/authorize?client_id=757026244716920893&permissions=8&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fredirect&scope=bot",
+    "botToken": "NzU3MDI2MjQ0NzE2OTIwODkz.X2aZoQ.uPPBAvRRR7K3ssJfJNedM3zQjV0",
+    "clientId": "757026244716920893",
+    "clientSecret": "-RH-YRfSz5Kr2hq2rOls4XF6tS8edlZA",
+    "gameCategoryName": "game",
+    "vcs": [
+        {
+            "name": "bob"
+        },
+        {
+            "name": "sponser 1"
+        },
+        {
+            "name": "yay"
+        }
+    ]
+}

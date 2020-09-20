@@ -6,7 +6,7 @@ const PORT = 8082;
 
 module.exports = () => {
     // Use client folder resources statically
-    app.use('/client', express.static(__dirname + '/client'));
+    app.use('/client', express.static(path.join(__dirname, '..', 'client')));
 
     // Express route
     app.get('/', function (req, res, next) {

@@ -3,28 +3,27 @@ const config = require('../config.json');
 const { userInGuild } = require('./bot');
 const { getAccessToken, getUserInfo } = require('./discord-api');
 
-var authList = [];
-var joinList = [];
+var authMap = {};
+var joinMap = {};
 var timeoutMap = {};
 var discordList = {};
 var socketList = {};
 var players = {};
-var count = 0;
+const TIMEOUT_MAX = 600000; // 10 minutes
 
-module.exports = async (server) => {
+const run = async (server) => {
     const io = require('socket.io')(server, {});
 
     io.sockets.on('connection', function (socket) {
         socket.on('client', async () => {
             count = 10;
             var authId = generateRandomString(16);
-            authList.push(authId);
+            authMap[authId] = socket;
 
             timeoutMap[authId] = setTimeout(() => {
-                const index = authList.indexOf(authId);
-                if (index > -1) authList.splice(index, 1);
+                delete authMap[authId];
                 delete timeoutMap[authId];
-            }, 10000);
+            }, TIMEOUT_MAX);
 
             var redirect =
                 'https://discord.com/api/oauth2/authorize?' +
@@ -40,7 +39,7 @@ module.exports = async (server) => {
         });
 
         socket.on('callback', async (data) => {
-            if (authList.find((id) => id === data.authId) === undefined) {
+            if (Object.keys(authMap).find((id) => id === data.authId) === undefined) {
                 socket.emit('authFailed');
                 return;
             }
@@ -56,57 +55,42 @@ module.exports = async (server) => {
                     authId: data.authId,
                 };
                 if (userInGuild(userInfo.id)) {
-                    socket.emit('joined', { userInfo });
+                    authMap[data.authId].emit('joined', { userInfo });
                 } else {
-                    socket.emit('toJoin');
-                    joinList.push(data.authId);
-                    timeoutMap[data.authId + 'j'] = setTimeout(() => {
-                        const index = joinList.indexOf(data.authId);
-                        if (index > -1) joinList.splice(index, 1);
-                        delete timeoutMap[data.authId + 'j'];
-                    }, 10000);
+                    authMap[data.authId].emit('toJoin', config.serverUrl);
+                    joinMap[userInfo.id] = data.authId; // TODO: Check if the user is already in the joinlist
+                    timeoutMap[userInfo.id] = setTimeout(() => {
+                        delete joinMap[userInfo.id];
+                        delete timeoutMap[userInfo.id];
+                    }, TIMEOUT_MAX);
                 }
             } else {
                 if (players[userInfo.id] === undefined) {
-                    socket.emit('joined', {
+                    authMap[data.authId].emit('joined', {
                         userInfo,
                         nickname: discordList[userInfo.id].player.nickname,
                     });
                 } else {
-                    socket.emit('playing');
+                    authMap[data.authId].emit('playing');
                 }
             }
         });
 
         socket.on('callbackFailed', (authId) => {
-            const index = authList.indexOf(authId);
-            if (index > -1) authList.splice(index, 1);
+            delete authMap[authId];
             delete timeoutMap[authId];
         });
-
-        // console.log('user connected!');
-
-        // socket.id = count++;
-        // players[socket.id] = {
-        //     x: 500,
-        //     y: 500,
-        //     color: randInt(0, 16777215).toString(16).padStart(6, '0'),
-        // };
-        // socketList[socket.id] = socket;
-        // socket.emit('start', { socketId: socket.id, players });
-
-        // socket.on('move', (movedPlayer) => {
-        //     players[socket.id] = movedPlayer;
-        //     io.emit('update', players);
-        // });
-
-        // socket.on('disconnect', () => {
-        //     delete socketList[socket.id];
-        //     delete players[socket.id];
-        //     io.emit('update', players);
-        //     console.log('user disconnected!');
-        // });
     });
+};
+
+const joinCallback = async (id) => {
+    var joinMember = Object.keys(joinMap).find((user) => user === id);
+    if (joinMember === undefined) return;
+
+    authMap[joinMap[id]].emit('joined', { userInfo: discordList[id].userInfo });
+    delete joinMap[id];
+    clearTimeout(timeoutMap[id]);
+    delete timeoutMap[id];
 };
 
 /**
@@ -123,7 +107,7 @@ function randInt(min, max) {
  * @param  {number} length The length of the string
  * @return {string} The generated string
  */
-var generateRandomString = function (length) {
+function generateRandomString(length) {
     var text = '';
     var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -131,4 +115,6 @@ var generateRandomString = function (length) {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     return text;
-};
+}
+
+module.exports = { run, joinCallback };

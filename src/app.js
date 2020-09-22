@@ -4,7 +4,7 @@ const Backend = require('./server/backend');
 
 // Start webpage
 const server = Web();
-Backend(server);
+Backend.run(server);
 
 // Start discord bot
 Bot.runBot();

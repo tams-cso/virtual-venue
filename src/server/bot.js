@@ -43,6 +43,11 @@ const runBot = () => {
         else if (args[0] === 'mkvcs') createVcs(message, config);
         else if (args[0] === 'rmvcs') removeVcs(message, config);
     });
+
+    client.on('guildMemberAdd', (member) => {
+        const { joinCallback } = require('./backend');
+        joinCallback(member.user.id);
+    })
 };
 
 /**
@@ -129,7 +134,7 @@ const removeVcs = async (message, config) => {
  * @param {string} userId The ID of the user to check
  * @returns {boolean} If the user is in the guild, it returns true
  */
-const userInGuild = async (userId) => {
+const userInGuild = (userId) => {
     // TODO: Check if there is more than one guild that the bot is in
     // but idk that might be hard bc idk what to send to the user
     // Maybe just an internal server error? (contact administrator) smth like that

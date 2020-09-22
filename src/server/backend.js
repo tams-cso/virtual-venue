@@ -4,8 +4,8 @@ const { userInGuild } = require('./bot');
 const { getAccessToken, getUserInfo } = require('./discord-api');
 
 var authList = [];
-var timeoutList = {};
-var joinList = {};
+var joinList = [];
+var timeoutMap = {};
 var discordList = {};
 var socketList = {};
 var players = {};
@@ -20,10 +20,10 @@ module.exports = async (server) => {
             var authId = generateRandomString(16);
             authList.push(authId);
 
-            timeoutList[authId] = setTimeout(async () => {
+            timeoutMap[authId] = setTimeout(() => {
                 const index = authList.indexOf(authId);
                 if (index > -1) authList.splice(index, 1);
-                delete timeoutList[authId];
+                delete timeoutMap[authId];
             }, 10000);
 
             var redirect =
@@ -59,6 +59,12 @@ module.exports = async (server) => {
                     socket.emit('joined', { userInfo });
                 } else {
                     socket.emit('toJoin');
+                    joinList.push(data.authId);
+                    timeoutMap[data.authId + 'j'] = setTimeout(() => {
+                        const index = joinList.indexOf(data.authId);
+                        if (index > -1) joinList.splice(index, 1);
+                        delete timeoutMap[data.authId + 'j'];
+                    }, 10000);
                 }
             } else {
                 if (players[userInfo.id] === undefined) {
@@ -75,7 +81,7 @@ module.exports = async (server) => {
         socket.on('callbackFailed', (authId) => {
             const index = authList.indexOf(authId);
             if (index > -1) authList.splice(index, 1);
-            delete timeoutList[authId];
+            delete timeoutMap[authId];
         });
 
         // console.log('user connected!');

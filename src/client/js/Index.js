@@ -26,10 +26,12 @@ function setup() {
         document.getElementById('to-join').style.display = 'none';
         document.getElementById('joined').style.display = 'block';
 
-        document.getElementById('avatar').src = `https://cdn.discordapp.com/avatars/${data.userInfo.id}/${data.userInfo.avatar}.png`
+        document.getElementById(
+            'avatar'
+        ).src = `https://cdn.discordapp.com/avatars/${data.userInfo.id}/${data.userInfo.avatar}.png`;
         document.getElementById('username').innerHTML = data.userInfo.username;
         document.getElementById('discriminator').innerHTML = '# ' + data.userInfo.discriminator;
-    })
+    });
 }
 
 function login() {
@@ -41,10 +43,16 @@ function login() {
 
 function joinServer() {
     window.open(joinLink);
-    document.getElementById('join-title').innerHTML = 'Waiting for you to join the server...'
-    document.getElementById('more-info').innerHTML = 'Click to try again'
+    document.getElementById('join-title').innerHTML = 'Waiting for you to join the server...';
+    document.getElementById('more-info').innerHTML = 'Click to try again';
 }
 
 function enterGame() {
-
+    var nick = document.getElementById('nick-input').value;
+    console.log(nick);
+    if (nick === '') {
+        document.getElementById('nick-input').placeholder = 'Enter a nickname...';
+    } else {
+        window.location = window.origin + `/game?nick=${nick}&auth=${authId}`;
+    }
 }

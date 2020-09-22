@@ -9,3 +9,8 @@ html, body {
 canvas {
     display: block;
 }
+
+#error {
+    display: none;
+    text-align: center;
+}

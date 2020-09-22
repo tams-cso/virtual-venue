@@ -7,12 +7,22 @@ var keyList = {};
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 var currPlayer;
-var socketId;
+var discordId = null;
 
 function setup() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const nickname = urlParams.get('nick');
+    const authId = urlParams.get('auth');
+    if (nickname === null || authId === null) {
+        fail();
+    }
+    socket.emit('start', { authId, nickname });
+    startGame();
+}
+
+function startGame() {
     resize();
     window.addEventListener('resize', resize);
-    console.log('game setup!');
 
     window.addEventListener('keydown', (event) => {
         keyList[event.key.toLowerCase()] = true;
@@ -23,13 +33,15 @@ function setup() {
     });
 
     socket.on('update', (players) => {
-        currPlayer = players[socketId];
-        draw(players);
+        if (discordId !== null) {
+            currPlayer = players[discordId];
+            draw(players);
+        }
     });
 
-    socket.on('start', (data) => {
-        socketId = data.socketId;
-        currPlayer = data.players[data.socketId];
+    socket.on('load', (data) => {
+        discordId = data.discordId;
+        currPlayer = data.players[discordId];
         draw(data.players);
 
         setInterval(() => {
@@ -55,6 +67,10 @@ function setup() {
                 socket.emit('move', currPlayer);
             }
         }, 1000 / FPS);
+    });
+
+    socket.on('failLoad', () => {
+        fail();
     });
 }
 
@@ -82,4 +98,12 @@ function draw(players) {
         ctx.fillStyle = '#' + p.color;
         ctx.fillRect(p.x, p.y, 30, 30);
     }
+}
+
+function fail() {
+    document.getElementById('canvas').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+    setTimeout(() => {
+        window.location = window.origin;
+    }, 2000);
 }

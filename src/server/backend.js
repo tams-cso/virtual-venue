@@ -80,6 +80,62 @@ const run = async (server) => {
             delete authMap[authId];
             delete timeoutMap[authId];
         });
+
+        socket.on('start', (data) => {
+            if (Object.keys(authMap).find((key) => key === data.authId) === undefined) {
+                socket.emit('failLoad');
+                return;
+            }
+
+            delete authMap[data.authId];
+
+            const discordObject = Object.values(discordList).find(
+                (obj) => obj.authId === data.authId
+            );
+
+            discordObject.authId = null;
+
+            var tempPlayer;
+            if (discordObject.player === null) {
+                tempPlayer = {
+                    x: config.start.x,
+                    y: config.start.y,
+                    color: randInt(0, 16777215).toString(16).padStart(6, '0'),
+                    nickname: data.nick,
+                    user: discordObject.userInfo,
+                };
+                discordList[discordObject.userInfo.id].player = tempPlayer;
+            } else {
+                tempPlayer = discordObject.player;
+            }
+
+            players[discordObject.userInfo.id] = tempPlayer;
+
+            socket.id = discordObject.userInfo.id;
+            socketList[socket.id] = socket;
+
+            console.log(
+                `${discordObject.userInfo.username}#${discordObject.userInfo.discriminator} joined the game!`
+            );
+
+            io.emit('update', players);
+
+            socket.emit('load', { discordId: discordObject.userInfo.id, players });
+        });
+
+        socket.on('disconnect', () => {
+            if (Object.keys(players).find((key) => key === socket.id) === undefined) return;
+
+            const discordObject = discordList[socket.id];
+            console.log(
+                `${discordObject.userInfo.username}#${discordObject.userInfo.discriminator} left the game`
+            );
+            
+            discordList[socket.id].player = players[socket.id];
+            delete socketList[socket.id];
+            delete players[socket.id];
+            io.emit('update', players);
+        });
     });
 };
 

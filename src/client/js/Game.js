@@ -45,6 +45,7 @@ function startGame() {
         draw(data.players);
 
         setInterval(() => {
+            console.log(currPlayer.x);
             var change = false;
             if (keyList['w'] || keyList['arrowup']) {
                 currPlayer.y -= SPEED;

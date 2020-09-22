@@ -115,7 +115,7 @@ const run = async (server) => {
             socketList[socket.id] = socket;
 
             console.log(
-                `${discordObject.userInfo.username}#${discordObject.userInfo.discriminator} joined the game!`
+                `${discordObject.userInfo.username} #${discordObject.userInfo.discriminator} joined the game!`
             );
 
             io.emit('update', players);
@@ -123,14 +123,19 @@ const run = async (server) => {
             socket.emit('load', { discordId: discordObject.userInfo.id, players });
         });
 
+        socket.on('move', (movedPlayer) => {
+            players[socket.id] = movedPlayer;
+            io.emit('update', players);
+        });
+
         socket.on('disconnect', () => {
             if (Object.keys(players).find((key) => key === socket.id) === undefined) return;
 
             const discordObject = discordList[socket.id];
             console.log(
-                `${discordObject.userInfo.username}#${discordObject.userInfo.discriminator} left the game`
+                `${discordObject.userInfo.username} #${discordObject.userInfo.discriminator} left the game`
             );
-            
+
             discordList[socket.id].player = players[socket.id];
             delete socketList[socket.id];
             delete players[socket.id];

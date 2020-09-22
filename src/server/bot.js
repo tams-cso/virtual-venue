@@ -1,12 +1,13 @@
 const Discord = require('discord.js');
 const config = require('../config.json');
 
+const client = new Discord.Client();
+// var guild;
+
 /**
  * The main function for starting the discord bot
  */
 const runBot = () => {
-    const client = new Discord.Client();
-
     client.on('ready', () => console.log(`Logged in as ${client.user.tag}`));
 
     // Login with the bot token provided in creds.json
@@ -19,6 +20,8 @@ const runBot = () => {
     });
 
     client.on('message', (message) => {
+        console.log();
+        
         // Check to see if the message is for the bot
         if (!message.content.startsWith(config.prefix) || message.author.bot) return;
 
@@ -29,7 +32,6 @@ const runBot = () => {
             );
             return;
         }
-
         // Splits the arguments up
         const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
 
@@ -121,4 +123,18 @@ const removeVcs = async (message, config) => {
     }
 };
 
-module.exports = { runBot };
+/**
+ * Checks in the user is in the current Discord Guild
+ * 
+ * @param {string} userId The ID of the user to check
+ * @returns {boolean} If the user is in the guild, it returns true
+ */
+const userInGuild = async (userId) => {
+    // TODO: Check if there is more than one guild that the bot is in
+    // but idk that might be hard bc idk what to send to the user
+    // Maybe just an internal server error? (contact administrator) smth like that
+    var guild = client.guilds.cache.first();
+    return (guild.members.cache.find(member => member.user.id === userId) !== undefined);
+}
+
+module.exports = { runBot, userInGuild };

@@ -1,6 +1,7 @@
 const querystring = require('querystring');
 const config = require('../config.json');
-const { getAccessToken } = require('./discord-api');
+const { userInGuild } = require('./bot');
+const { getAccessToken, getUserInfo } = require('./discord-api');
 
 var authList = [];
 var timeoutList = {};
@@ -39,7 +40,7 @@ module.exports = async (server) => {
         });
 
         socket.on('callback', async (data) => {
-            if (authList.find(id => id === data.authId) === undefined) {
+            if (authList.find((id) => id === data.authId) === undefined) {
                 socket.emit('authFailed');
                 return;
             }
@@ -47,8 +48,28 @@ module.exports = async (server) => {
             socket.emit('authSuccess');
 
             const tokens = await getAccessToken(data.code);
-            console.log(tokens);
-            
+            const userInfo = await getUserInfo(tokens.access_token);
+            if (discordList[userInfo.id] === undefined) {
+                discordList[userInfo.id] = {
+                    userInfo,
+                    player: null,
+                    authId: data.authId,
+                };
+                if (userInGuild(userInfo.id)) {
+                    socket.emit('joined', { userInfo });
+                } else {
+                    socket.emit('toJoin');
+                }
+            } else {
+                if (players[userInfo.id] === undefined) {
+                    socket.emit('joined', {
+                        userInfo,
+                        nickname: discordList[userInfo.id].player.nickname,
+                    });
+                } else {
+                    socket.emit('playing');
+                }
+            }
         });
 
         socket.on('callbackFailed', (authId) => {

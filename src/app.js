@@ -7,4 +7,4 @@ const server = Web();
 Backend(server);
 
 // Start discord bot
-// Bot.runBot();
+Bot.runBot();

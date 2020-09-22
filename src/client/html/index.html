@@ -16,6 +16,27 @@
         <h1>Waiting for authentication...</h1>
         <p>Refresh page to try again</p>
     </div>
+    <div id="playing">
+        <h1>Already Playing with this Account!</h1>
+        <p>Only one instance of the game can be opened at one time per discord account!</p>
+        <p id="playing-id"></p>
+    </div>
+    <div id="to-join">
+        <h1>Click to Join Server:</h1>
+        <button id="join-button" onclick="joinServer()">Join!</button>
+    </div>
+    <div id="joined">
+        <h1>Login Successful!</h1>
+        <table>
+            <tbody>
+                <tr>
+                    <td><img id="avatar" /></td>
+                    <td id="username"></td>
+                    <td id="discriminator"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
     <script crossorigin src="https://unpkg.com/universal-cookie@3/umd/universalCookie.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
     <script src="/client/js/Index.js"></script>

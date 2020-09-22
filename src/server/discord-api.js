@@ -25,4 +25,13 @@ const refreshTokens = async () => {
 
 }
 
-module.exports = { getAccessToken, refreshTokens }
+const getUserInfo = async (token) => {
+    return await fetch('https://discord.com/api/users/@me', {
+        method: 'GET',
+        headers: {
+            Authorization: 'Bearer ' + token
+        }
+    }).then((data) => data.json());
+}
+
+module.exports = { getAccessToken, refreshTokens, getUserInfo }

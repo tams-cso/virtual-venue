@@ -1,4 +1,4 @@
 node_modules
-creds.json
+config.json
 yarn-error.log
 .node-persist

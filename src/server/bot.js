@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const config = require('../config.json');
+const { joinCallback } = require('./backend');
 
 const client = new Discord.Client();
 // var guild;
@@ -45,7 +46,6 @@ const runBot = () => {
     });
 
     client.on('guildMemberAdd', (member) => {
-        const { joinCallback } = require('./backend');
         joinCallback(member.user.id);
     })
 };

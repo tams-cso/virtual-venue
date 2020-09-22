@@ -1,6 +1,5 @@
 const querystring = require('querystring');
 const config = require('../config.json');
-const { userInGuild } = require('./bot');
 const { getAccessToken, getUserInfo } = require('./discord-api');
 
 var authMap = {};
@@ -48,6 +47,7 @@ const run = async (server) => {
 
             const tokens = await getAccessToken(data.code);
             const userInfo = await getUserInfo(tokens.access_token);
+            const { userInGuild } = require('./bot');
             if (discordList[userInfo.id] === undefined) {
                 discordList[userInfo.id] = {
                     userInfo,

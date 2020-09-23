@@ -73,7 +73,10 @@ const run = async (server) => {
                         nickname: discordList[userInfo.id].player.nickname,
                     });
                 } else {
-                    authMap[data.authId].emit('playing', `${userInfo.username}#${userInfo.discriminator}`);
+                    authMap[data.authId].emit(
+                        'playing',
+                        `${userInfo.username}#${userInfo.discriminator}`
+                    );
                 }
             }
         });
@@ -121,7 +124,12 @@ const run = async (server) => {
                 `${discordObject.userInfo.username} #${discordObject.userInfo.discriminator} joined the game!`
             );
 
-            socket.emit('load', { discordId: discordObject.userInfo.id, players, gameObjects });
+            socket.emit('load', {
+                discordId: discordObject.userInfo.id,
+                players,
+                gameObjects,
+                boardSize: config.boardSize,
+            });
 
             io.emit('update', players);
         });

@@ -3,7 +3,6 @@ const FPS = 20; // Frames per second
 const SPEED = 15; // # of pixels moved per frame
 const SIZE = 30; // Size of player in pixels
 
-var center = { x: 0, y: 0 };
 var keyList = {};
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
@@ -11,7 +10,9 @@ var currPlayer;
 var lastPlayerState;
 var discordId = null;
 var gameObjects;
-// var offset = { x: 0, y: 0 }
+var board = { w: 0, h: 0 };
+var viewport = { x: 0, y: 0 };
+var center = { x: 0, y: 0 };
 
 function setup() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -46,9 +47,11 @@ function setup() {
         discordId = data.discordId;
         currPlayer = data.players[discordId];
         lastPlayerState = data.players;
+        board = data.boardSize;
         draw();
 
         setInterval(() => {
+            var tempPlayer = { ...currPlayer };
             var change = false;
             if (keyList['w'] || keyList['arrowup']) {
                 currPlayer.y -= SPEED;
@@ -67,8 +70,20 @@ function setup() {
                 change = true;
             }
 
-            // TODO: Check if player walked into wall => change = false;
+            // Check if player went out of bounds
+            if (
+                currPlayer.x < 0 ||
+                currPlayer.x > board.w - SIZE ||
+                currPlayer.y < 0 ||
+                currPlayer.y > board.h - SIZE
+            ) {
+                currPlayer = tempPlayer;
+                change = false;
+            }
+
             if (change) {
+                document.getElementById('coords').innerHTML = `(${currPlayer.x}, ${currPlayer.y})`;
+                // TODO: Check if player walked into wall => change = false;
                 // TODO: Add check if player stepped into vc :ooo
                 socket.emit('move', currPlayer);
             }
@@ -99,26 +114,40 @@ function randInt(min, max) {
 function drawBackground() {
     gameObjects.forEach((obj) => {
         ctx.fillStyle = obj.color;
-        ctx.fillRect(obj.x, obj.y, obj.w, obj.h);
-    })
+        ctx.fillRect(obj.x - viewport.x, obj.y - viewport.y, obj.w, obj.h);
+    });
 }
 
 function draw() {
     if (discordId === null) return;
+
+    viewport = {
+        x: currPlayer.x - center.x,
+        y: currPlayer.y - center.y,
+    };
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     drawBackground();
+
     for (var i in lastPlayerState) {
         var p = lastPlayerState[i];
 
         ctx.fillStyle = '#' + p.color;
-        ctx.fillRect(p.x - SIZE / 2, p.y - SIZE / 2, SIZE, SIZE);
+        ctx.fillRect(p.x - SIZE / 2 - viewport.x, p.y - SIZE / 2 - viewport.y, SIZE, SIZE);
+
         ctx.textAlign = 'center';
         ctx.fillStyle = '#000000';
         ctx.font = '20px sans-serif';
-        ctx.fillText(p.nickname, p.x, p.y - 35);
+        ctx.fillText(p.nickname, p.x - viewport.x, p.y - 35 - viewport.y);
+
         ctx.fillStyle = '#aaaaaa';
         ctx.font = '14px sans-serif';
-        ctx.fillText(`${p.user.username}#${p.user.discriminator}`, p.x, p.y - 20);
+        ctx.fillText(
+            `${p.user.username}#${p.user.discriminator}`,
+            p.x - viewport.x,
+            p.y - 20 - viewport.y
+        );
     }
 }
 

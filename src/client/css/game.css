@@ -14,3 +14,9 @@ canvas {
     display: none;
     text-align: center;
 }
+
+#coords {
+    position: fixed;
+    top: 1em;
+    left: 1em;
+}

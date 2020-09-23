@@ -12,7 +12,7 @@ yarn install
 
 ## To configure:
 
--   Go to the (Discord Developer Portal)[https://discord.com/developers/applications] and create an application
+-   Go to the [Discord Developer Portal](https://discord.com/developers/applications) and create an application
 -   Then go to `Bot` and create a bot
 -   Copy the bot token to the botToken field in config.json
 -   Go to Oauth2 to generate a link to add the bot to your server => select `bot` and then `Administrator`

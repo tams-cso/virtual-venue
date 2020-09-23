@@ -1,12 +1,14 @@
 var socket = io();
-const FPS = 20;
-const SPEED = 15;
+const FPS = 20; // Frames per second
+const SPEED = 15; // # of pixels moved per frame
+const SIZE = 30; // Size of player in pixels
 
 var center = { x: 0, y: 0 };
 var keyList = {};
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 var currPlayer;
+var lastPlayerState;
 var discordId = null;
 
 function setup() {
@@ -17,10 +19,7 @@ function setup() {
         fail();
     }
     socket.emit('start', { authId, nickname });
-    startGame();
-}
 
-function startGame() {
     resize();
     window.addEventListener('resize', resize);
 
@@ -35,17 +34,18 @@ function startGame() {
     socket.on('update', (players) => {
         if (discordId !== null) {
             currPlayer = players[discordId];
-            draw(players);
+            lastPlayerState = players;
+            draw();
         }
     });
 
     socket.on('load', (data) => {
         discordId = data.discordId;
         currPlayer = data.players[discordId];
-        draw(data.players);
+        lastPlayerState = data.players;
+        draw();
 
         setInterval(() => {
-            console.log(currPlayer.x);
             var change = false;
             if (keyList['w'] || keyList['arrowup']) {
                 currPlayer.y -= SPEED;
@@ -91,13 +91,20 @@ function randInt(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
 
-function draw(players) {
+function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (var i in players) {
-        var p = players[i];
+    for (var i in lastPlayerState) {
+        var p = lastPlayerState[i];
 
         ctx.fillStyle = '#' + p.color;
-        ctx.fillRect(p.x, p.y, 30, 30);
+        ctx.fillRect(p.x - SIZE / 2, p.y - SIZE / 2, SIZE, SIZE);
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#000000';
+        ctx.font = '20px sans-serif';
+        ctx.fillText(p.nickname, p.x, p.y - 35);
+        ctx.fillStyle = '#aaaaaa';
+        ctx.font = '14px sans-serif';
+        ctx.fillText(`${p.user.username}#${p.user.discriminator}`, p.x, p.y - 20);
     }
 }
 

@@ -101,7 +101,7 @@ const run = async (server) => {
                     x: config.start.x,
                     y: config.start.y,
                     color: randInt(0, 16777215).toString(16).padStart(6, '0'),
-                    nickname: data.nick,
+                    nickname: data.nickname,
                     user: discordObject.userInfo,
                 };
                 discordList[discordObject.userInfo.id].player = tempPlayer;

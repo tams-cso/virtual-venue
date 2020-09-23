@@ -1,5 +1,5 @@
 var socket = io();
-const FPS = 20; // Frames per second
+const FPS = 25; // Frames per second
 const SPEED = 15; // # of pixels moved per frame
 const SIZE = 30; // Size of player in pixels
 
@@ -54,19 +54,19 @@ function setup() {
             var tempPlayer = { ...currPlayer };
             var change = false;
             if (keyList['w'] || keyList['arrowup']) {
-                currPlayer.y -= SPEED;
+                currPlayer.y -= SPEED * (keyList['shift'] ? 2 : 1);
                 change = true;
             }
             if (keyList['s'] || keyList['arrowdown']) {
-                currPlayer.y += SPEED;
+                currPlayer.y += SPEED * (keyList['shift'] ? 2 : 1);
                 change = true;
             }
             if (keyList['a'] || keyList['arrowleft']) {
-                currPlayer.x -= SPEED;
+                currPlayer.x -= SPEED * (keyList['shift'] ? 2 : 1);
                 change = true;
             }
             if (keyList['d'] || keyList['arrowright']) {
-                currPlayer.x += SPEED;
+                currPlayer.x += SPEED * (keyList['shift'] ? 2 : 1);
                 change = true;
             }
 
@@ -122,8 +122,8 @@ function draw() {
     if (discordId === null) return;
 
     viewport = {
-        x: currPlayer.x - center.x,
-        y: currPlayer.y - center.y,
+        x: Math.max(currPlayer.x - center.x, 0),
+        y: Math.max(currPlayer.y - center.y, 0),
     };
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);

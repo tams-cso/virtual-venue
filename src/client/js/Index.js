@@ -31,7 +31,17 @@ function setup() {
         ).src = `https://cdn.discordapp.com/avatars/${data.userInfo.id}/${data.userInfo.avatar}.png`;
         document.getElementById('username').innerHTML = data.userInfo.username;
         document.getElementById('discriminator').innerHTML = '# ' + data.userInfo.discriminator;
+
+        if (data.nickname != null && data.nickname != undefined) {
+            document.getElementById('nick-input').value = data.nickname;
+        }
     });
+
+    socket.on('playing', (user) => {
+        document.getElementById('after-redirect').style.display = 'none';
+        document.getElementById('playing').style.display = 'block';
+        document.getElementById('playing-id').innerHTML = `User: ${user}`;
+    })
 }
 
 function login() {
@@ -49,7 +59,6 @@ function joinServer() {
 
 function enterGame() {
     var nick = document.getElementById('nick-input').value;
-    console.log(nick);
     if (nick === '') {
         document.getElementById('nick-input').placeholder = 'Enter a nickname...';
     } else {

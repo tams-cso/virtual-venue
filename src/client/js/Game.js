@@ -10,6 +10,8 @@ var ctx = canvas.getContext('2d');
 var currPlayer;
 var lastPlayerState;
 var discordId = null;
+var gameObjects;
+// var offset = { x: 0, y: 0 }
 
 function setup() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -40,6 +42,7 @@ function setup() {
     });
 
     socket.on('load', (data) => {
+        gameObjects = data.gameObjects;
         discordId = data.discordId;
         currPlayer = data.players[discordId];
         lastPlayerState = data.players;
@@ -64,7 +67,9 @@ function setup() {
                 change = true;
             }
 
+            // TODO: Check if player walked into wall => change = false;
             if (change) {
+                // TODO: Add check if player stepped into vc :ooo
                 socket.emit('move', currPlayer);
             }
         }, 1000 / FPS);
@@ -91,8 +96,17 @@ function randInt(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }
 
+function drawBackground() {
+    gameObjects.forEach((obj) => {
+        ctx.fillStyle = obj.color;
+        ctx.fillRect(obj.x, obj.y, obj.w, obj.h);
+    })
+}
+
 function draw() {
+    if (discordId === null) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBackground();
     for (var i in lastPlayerState) {
         var p = lastPlayerState[i];
 

@@ -1,6 +1,7 @@
 const querystring = require('querystring');
-const config = require('../config.json');
 const { getAccessToken, getUserInfo } = require('./discord-api');
+const config = require('../config.json');
+const gameObjects = require('../gameObjects.json');
 
 var authMap = {};
 var joinMap = {};
@@ -65,13 +66,14 @@ const run = async (server) => {
                     }, TIMEOUT_MAX);
                 }
             } else {
+                discordList[userInfo.id].authId = data.authId;
                 if (players[userInfo.id] === undefined) {
                     authMap[data.authId].emit('joined', {
                         userInfo,
                         nickname: discordList[userInfo.id].player.nickname,
                     });
                 } else {
-                    authMap[data.authId].emit('playing');
+                    authMap[data.authId].emit('playing', `${userInfo.username}#${userInfo.discriminator}`);
                 }
             }
         });
@@ -107,6 +109,7 @@ const run = async (server) => {
                 discordList[discordObject.userInfo.id].player = tempPlayer;
             } else {
                 tempPlayer = discordObject.player;
+                tempPlayer.nickname = data.nickname;
             }
 
             players[discordObject.userInfo.id] = tempPlayer;
@@ -118,9 +121,9 @@ const run = async (server) => {
                 `${discordObject.userInfo.username} #${discordObject.userInfo.discriminator} joined the game!`
             );
 
-            io.emit('update', players);
+            socket.emit('load', { discordId: discordObject.userInfo.id, players, gameObjects });
 
-            socket.emit('load', { discordId: discordObject.userInfo.id, players });
+            io.emit('update', players);
         });
 
         socket.on('move', (movedPlayer) => {

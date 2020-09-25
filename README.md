@@ -30,14 +30,12 @@ yarn install
         "x": "[integer x position for player to start at]",
         "y": "[integer y position for player to start at]"
     },
+    "boardSize": {
+        "w": "[integer board width]",
+        "h": "[integer board height]"
+    },
     "gameCategoryName": "[name of channel category you want the game vcs to be in (eg. 'game')]",
-    "prefix": "[prefix to be used (eg. '>>')]",
-    "vcs": [
-        {
-            "name": "[name of vc area]",
-            "other attributes TBD": null
-        }
-    ]
+    "prefix": "[prefix to be used (eg. '>>')]"
 }
 ```
 

@@ -35,6 +35,9 @@ function setup() {
         if (data.nickname != null && data.nickname != undefined) {
             document.getElementById('nick-input').value = data.nickname;
         }
+        document.getElementById('nick-input').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') enterGame();
+        })
     });
 
     socket.on('playing', (user) => {

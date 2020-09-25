@@ -1,29 +1,49 @@
 [
     {
         "id": "box1",
-        "type": "wall",
+        "type": "vc",
+        "vcName": "The cool kids club!",
         "color": "#4efc8b",
-        "x": 4500,
-        "y": 4500,
-        "w": 500,
-        "h": 500
+        "x": 4368,
+        "y": 4368,
+        "w": 512,
+        "h": 512
+    },
+    {
+        "id": "box5",
+        "type": "background",
+        "color": "#0d9cc4",
+        "x": 3728,
+        "y": 4368,
+        "w": 128,
+        "h": 128
     },
     {
         "id": "box2",
-        "type": "background",
+        "type": "wall",
         "color": "#d6a42f",
-        "x": 3000,
-        "y": 10,
-        "w": 100,
-        "h": 8000
+        "x": 3040,
+        "y": 32,
+        "w": 128,
+        "h": 2880
+    },
+    {
+        "id": "box4",
+        "type": "wall",
+        "color": "#2eb527",
+        "x": 3008,
+        "y": 3008,
+        "w": 224,
+        "h": 2016
     },
     {
         "id": "box3",
         "type": "vc",
+        "vcName": "Secret vc owo",
         "color": "#dcaaed",
-        "x": 200,
-        "y": 600,
-        "w": 300,
-        "h": 100
+        "x": 192,
+        "y": 608,
+        "w": 320,
+        "h": 160
     }
 ]

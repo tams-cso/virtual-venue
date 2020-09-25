@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const config = require('../config.json');
+const gameObjects = require('../gameObjects.json');
 const { joinCallback } = require('./backend');
 
 const client = new Discord.Client();
@@ -22,7 +23,7 @@ const runBot = () => {
 
     client.on('message', (message) => {
         console.log();
-        
+
         // Check to see if the message is for the bot
         if (!message.content.startsWith(config.prefix) || message.author.bot) return;
 
@@ -47,7 +48,7 @@ const runBot = () => {
 
     client.on('guildMemberAdd', (member) => {
         joinCallback(member.user.id);
-    })
+    });
 };
 
 /**
@@ -95,12 +96,14 @@ const createVcs = async (message, config) => {
     }
 
     message.guild.channels.create('main', { type: 'voice', parent: gameCat });
-    config.vcs.forEach((data) => {
-        message.guild.channels.create(data.name, {
-            type: 'voice',
-            parent: gameCat,
-            permissionOverwrites: [{ id: message.guild.id, deny: ['CONNECT'] }],
-        });
+    gameObjects.forEach((obj) => {
+        if (obj.type == 'vc') {
+            message.guild.channels.create(obj.vcName, {
+                type: 'voice',
+                parent: gameCat,
+                permissionOverwrites: [{ id: message.guild.id, deny: ['CONNECT'] }],
+            });
+        }
     });
     message.channel.send(message.author.toString() + ' created VCs!');
 };
@@ -116,7 +119,9 @@ const removeVcs = async (message, config) => {
         .filter((channel) => channel.type === 'category')
         .find((channel) => channel.name === config.gameCategoryName);
     if (gameCat === undefined) {
-        message.channel.send(message.author.toString() + ` I can't find the ${config.gameCategoryName} category`);
+        message.channel.send(
+            message.author.toString() + ` I can't find the ${config.gameCategoryName} category`
+        );
     } else {
         message.guild.channels.cache.forEach((value, key) => {
             if (value.parentID === gameCat.id) {
@@ -130,7 +135,7 @@ const removeVcs = async (message, config) => {
 
 /**
  * Checks in the user is in the current Discord Guild
- * 
+ *
  * @param {string} userId The ID of the user to check
  * @returns {boolean} If the user is in the guild, it returns true
  */
@@ -139,7 +144,7 @@ const userInGuild = (userId) => {
     // but idk that might be hard bc idk what to send to the user
     // Maybe just an internal server error? (contact administrator) smth like that
     var guild = client.guilds.cache.first();
-    return (guild.members.cache.find(member => member.user.id === userId) !== undefined);
-}
+    return guild.members.cache.find((member) => member.user.id === userId) !== undefined;
+};
 
 module.exports = { runBot, userInGuild };

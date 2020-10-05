@@ -8,6 +8,9 @@
     "license": "MIT",
     "private": false,
     "dependencies": {
+        "@colyseus/monitor": "^0.12.2",
+        "colyseus": "^0.13.7",
+        "cors": "^2.8.5",
         "discord.js": "^12.3.1",
         "express": "^4.17.1",
         "node-fetch": "^2.6.1",

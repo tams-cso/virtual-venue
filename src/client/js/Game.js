@@ -2,6 +2,7 @@ var socket = io();
 const FPS = 25; // Frames per second
 const SPEED = 16; // # of pixels moved per frame
 const SIZE = 32; // Size of player in pixels
+const WS_PORT = 2567;
 
 var keyList = {};
 var canvas = document.getElementById('canvas');
@@ -22,6 +23,8 @@ function setup() {
     if (nickname === null || authId === null) {
         fail();
     }
+
+    var client = new Colyseus.Client(location.protocol.replace("http", "ws") + "//" + host + ":" + WS_PORT);
     socket.emit('start', { authId, nickname });
 
     resize();
@@ -34,6 +37,23 @@ function setup() {
     window.addEventListener('keyup', (event) => {
         keyList[event.key.toLowerCase()] = false;
     });
+
+    client.joinOrCreate('virtual-venue').then((room) => {
+        console.log("joined");
+        room.onStateChange.once(function(state) {
+            console.log("Initial room state: " + state);
+        });
+
+        room.onStateChange(function(state) {  
+            // THis signal trigged on each patch
+        })
+
+        room.onMessage("update", function(message) {
+            var p = document.createElement("p");
+            p.innerText = message;
+            document.querySelector("#messages").appendChild(p);
+        });
+    })
 
     socket.on('update', (players) => {
         if (discordId !== null) {

@@ -5,46 +5,45 @@ var redirect;
 var joinLink;
 
 function setup() {
+    // Tell the server that the client has arrived!
     socket.emit('client');
 
+    // Once the server returns the authId
     socket.on('authStart', (data) => {
+        // Save the authId and redirect uri
         authId = data.authId;
         redirect = data.redirect;
+
+        // Enable the login button
         const loginButton = document.getElementById('login-button');
         loginButton.disabled = false;
         loginButton.innerHTML = 'Login with Discord';
     });
 
+    // Redirect the user to join the server
     socket.on('toJoin', (serverUrl) => {
+        // Show the joining prompt and set the url
         document.getElementById('after-redirect').style.display = 'none';
         document.getElementById('to-join').style.display = 'block';
         joinLink = serverUrl;
     });
 
-    socket.on('joined', (data) => {
-        document.getElementById('after-redirect').style.display = 'none';
-        document.getElementById('to-join').style.display = 'none';
-        document.getElementById('joined').style.display = 'block';
+    // If auth flow complete
+    socket.on('joined', () => {
+        // Set cookies for client to authenticate
+        cookies.set('authId', authId);
 
-        document.getElementById(
-            'avatar'
-        ).src = `https://cdn.discordapp.com/avatars/${data.userInfo.id}/${data.userInfo.avatar}.png`;
-        document.getElementById('username').innerHTML = data.userInfo.username;
-        document.getElementById('discriminator').innerHTML = '# ' + data.userInfo.discriminator;
-
-        if (data.nickname != null && data.nickname != undefined) {
-            document.getElementById('nick-input').value = data.nickname;
-        }
-        document.getElementById('nick-input').addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') enterGame();
-        })
+        // Redirect user to game
+        window.location = window.origin + '/game';
     });
 
+    // If the user is already in a game on another client
     socket.on('playing', (user) => {
+        // Hide other UI and show playing UI element
         document.getElementById('after-redirect').style.display = 'none';
         document.getElementById('playing').style.display = 'block';
         document.getElementById('playing-id').innerHTML = `User: ${user}`;
-    })
+    });
 }
 
 function login() {
@@ -58,13 +57,4 @@ function joinServer() {
     window.open(joinLink);
     document.getElementById('join-title').innerHTML = 'Waiting for you to join the server...';
     document.getElementById('more-info').innerHTML = 'Click to try again';
-}
-
-function enterGame() {
-    var nick = document.getElementById('nick-input').value;
-    if (nick === '') {
-        document.getElementById('nick-input').placeholder = 'Enter a nickname...';
-    } else {
-        window.location = window.origin + `/game?nick=${nick}&auth=${authId}`;
-    }
 }

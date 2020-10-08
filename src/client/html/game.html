@@ -6,14 +6,30 @@
     <title>Virtual Venue Login</title>
     <link rel="stylesheet" href="/client/css/game.css">
 </head>
-<body onload="setup()">
+<body onload="getLogin()">
     <canvas id="canvas"></canvas>
     <div id="coords"></div>
+    <div id="pregame">
+        <h1>Login Successful!</h1>
+        <table id="user-table">
+            <tbody>
+                <tr>
+                    <td><img id="avatar" /></td>
+                    <td id="username"></td>
+                    <td id="discriminator"></td>
+                </tr>
+            </tbody>
+        </table>
+        <div id="nick-title">Nickname: </div>
+        <input type="text" name="nickname" id="nick-input" />
+        <br><button class="submit" id="enter-button" onclick="enterGame()">Enter</button>
+    </div>
     <div id="error">
         <h1>There was an error logging you in :(</h1>
         <p>Redirecting you back to the home page...</p>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script crossorigin src="https://unpkg.com/universal-cookie@3/umd/universalCookie.min.js"></script>
     <script type="text/javascript" src="https://raw.githack.com/colyseus/colyseus.js/master/dist/colyseus.js"></script>
     <script src="/client/js/Game.js"></script>
 </body>

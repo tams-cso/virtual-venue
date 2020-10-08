@@ -6,8 +6,12 @@ html, body {
     overflow: hidden;
 }
 
-canvas {
-    display: block;
+.submit { /* button */
+    margin: 1em;
+}
+
+#canvas {
+    display: none;
 }
 
 #error {
@@ -16,7 +20,31 @@ canvas {
 }
 
 #coords {
+    display: none;
     position: fixed;
     top: 1em;
     left: 1em;
+}
+
+#pregame {
+    margin: auto;
+    width: 40em;
+    height: 21em;
+    background-color: white;
+    filter: drop-shadow(0 0 4px #aaaaaa);
+    text-align: center;
+    padding: 1em;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#nick-title {
+    margin: 0.5em;
+}
+
+#user-table {
+    margin: 1em auto;
 }

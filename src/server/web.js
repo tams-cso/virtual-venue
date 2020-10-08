@@ -29,17 +29,17 @@ module.exports = () => {
     // Start Node.js server
     server.listen(PORT, () => console.log(`Listening on port ${PORT}!`));
 
-    // Create colyseus game room
-    const GameRoom = require('./GameRoom').GameRoom;
-    const gameServer = new colyseus.Server({
-        server: wsServer,
-    });
-    
     // Create app for Colyseus ws
     const wsApp = express();
     const wsServer = http.Server(wsApp);
     wsApp.use(cors());
     wsApp.use(express.json());
+
+    // Create colyseus game room
+    const GameRoom = require('./GameRoom').GameRoom;
+    const gameServer = new colyseus.Server({
+        server: wsServer,
+    });
 
     // Define game room & monitor location
     gameServer.define('virtual-venue', GameRoom);

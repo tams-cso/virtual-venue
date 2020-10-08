@@ -2,19 +2,11 @@
     text-align: center;
 }
 
-#after-redirect, #playing, #to-join, #joined {
+#after-redirect, #playing, #to-join {
     text-align: center;
     display: none;
 }
 
-#user-table {
-    margin: 1em auto;
-}
-
 .submit {
     margin: 1em;
-}
-
-#nick-title {
-    margin: 0.5em;
 }

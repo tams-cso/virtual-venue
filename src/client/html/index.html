@@ -26,21 +26,6 @@
         <p id="more-info"></p>
         <button id="join-button" onclick="joinServer()">Join!</button>
     </div>
-    <div id="joined">
-        <h1>Login Successful!</h1>
-        <table id="user-table">
-            <tbody>
-                <tr>
-                    <td><img id="avatar" /></td>
-                    <td id="username"></td>
-                    <td id="discriminator"></td>
-                </tr>
-            </tbody>
-        </table>
-        <div id="nick-title">Nickname: </div>
-        <input type="text" name="nickname" id="nick-input" />
-        <br><button class="submit" id="enter-button" onclick="enterGame()">Enter</button>
-    </div>
     <script crossorigin src="https://unpkg.com/universal-cookie@3/umd/universalCookie.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
     <script src="/client/js/Index.js"></script>

@@ -9,8 +9,6 @@ var timeoutMap = {};
 var discordList = {};
 var players = {};
 const TIMEOUT_MAX = 600000; // 10 minutes
-const SPEED = 16; // # of pixels moved per frame
-const SIZE = 32; // Size of player in pixels
 
 const run = async (server) => {
     const io = require('socket.io')(server, {});
@@ -205,59 +203,9 @@ const run = async (server) => {
         });
 
         // When player moves
-        socket.on('move', (data) => {
-            var tempPlayer = { ...data.currPlayer };
-            var change = false;
-            if (data.keyList['w'] || data.keyList['arrowup']) {
-                data.currPlayer.y -= SPEED * (data.keyList['shift'] ? 2 : 1);
-                change = true;
-            }
-            if (data.keyList['s'] || data.keyList['arrowdown']) {
-                data.currPlayer.y += SPEED * (data.keyList['shift'] ? 2 : 1);
-                change = true;
-            }
-            if (data.keyList['a'] || data.keyList['arrowleft']) {
-                data.currPlayer.x -= SPEED * (data.keyList['shift'] ? 2 : 1);
-                change = true;
-            }
-            if (data.keyList['d'] || data.keyList['arrowright']) {
-                data.currPlayer.x += SPEED * (data.keyList['shift'] ? 2 : 1);
-                change = true;
-            }
-
-            if (change) {
-                // Check if player out of bounds
-                if (
-                    data.currPlayer.x < 0 ||
-                    data.currPlayer.x > config.boardSize.w - SIZE ||
-                    data.currPlayer.y < 0 ||
-                    data.currPlayer.y > config.boardSize.h - SIZE
-                ) {
-                    data.currPlayer = { ...tempPlayer };
-                    return;
-                }
-        
-                // Check if player ran into wall
-                var bounds = [
-                    { x: data.currPlayer.x, y: data.currPlayer.y },
-                    { x: data.currPlayer.x + SIZE, y: data.currPlayer.y },
-                    { x: data.currPlayer.x, y: data.currPlayer.y + SIZE },
-                    { x: data.currPlayer.x + SIZE, y: data.currPlayer.y + SIZE },
-                ];
-                gameObjects.forEach((obj) => {
-                    if (obj.type == 'wall') {
-                        bounds.forEach((b) => {
-                            if (b.x > obj.x && b.x < obj.x + obj.w && b.y > obj.y && b.y < obj.y + obj.h) {
-                                data.currPlayer = { ...tempPlayer };
-                                return;
-                            }
-                        });
-                    }
-                });
-
-                players[socket.id] = data.currPlayer;
-                io.emit('update', players);
-            }
+        socket.on('move', (movedPlayer) => {
+            players[socket.id] = movedPlayer;
+            io.emit('update', players);
         });
 
         // When the player disconnects from the socket

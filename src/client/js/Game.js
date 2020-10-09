@@ -153,61 +153,17 @@ function resize() {
 }
 
 function loop() {
-    var tempPlayer = { ...currPlayer };
-    var change = false;
-    if (keyList['w'] || keyList['arrowup']) {
-        currPlayer.y -= SPEED * (keyList['shift'] ? 2 : 1);
-        change = true;
-    }
-    if (keyList['s'] || keyList['arrowdown']) {
-        currPlayer.y += SPEED * (keyList['shift'] ? 2 : 1);
-        change = true;
-    }
-    if (keyList['a'] || keyList['arrowleft']) {
-        currPlayer.x -= SPEED * (keyList['shift'] ? 2 : 1);
-        change = true;
-    }
-    if (keyList['d'] || keyList['arrowright']) {
-        currPlayer.x += SPEED * (keyList['shift'] ? 2 : 1);
-        change = true;
-    }
-
-    if (change) {
-        // Check if player out of bounds
-        if (
-            currPlayer.x < 0 ||
-            currPlayer.x > board.w - SIZE ||
-            currPlayer.y < 0 ||
-            currPlayer.y > board.h - SIZE
-        ) {
-            currPlayer = { ...tempPlayer };
-            return;
-        }
-
-        // Check if player ran into wall
-        var bounds = [
-            { x: currPlayer.x, y: currPlayer.y },
-            { x: currPlayer.x + SIZE, y: currPlayer.y },
-            { x: currPlayer.x, y: currPlayer.y + SIZE },
-            { x: currPlayer.x + SIZE, y: currPlayer.y + SIZE },
-        ];
-        gameObjects.forEach((obj) => {
-            if (obj.type == 'wall') {
-                bounds.forEach((b) => {
-                    if (b.x > obj.x && b.x < obj.x + obj.w && b.y > obj.y && b.y < obj.y + obj.h) {
-                        currPlayer = { ...tempPlayer };
-                        return;
-                    }
-                });
-            }
-        });
-
-        // Check if player is in VC
-        // TODO
-
-        // Update coords and server
-        document.getElementById('coords').innerHTML = `(${currPlayer.x}, ${currPlayer.y})`;
-        socket.emit('move', currPlayer);
+    if (
+        keyList['w'] ||
+        keyList['a'] ||
+        keyList['s'] ||
+        keyList['d'] ||
+        keyList['arrowup'] ||
+        keyList['arrowdown'] ||
+        keyList['arrowleft'] ||
+        keyList['arrowright']
+    ) {
+        socket.emit('move', { currPlayer, keyList });
     }
 }
 

@@ -23,6 +23,7 @@ function getLogin() {
     // Get the authId & remove cookie
     var authId = cookies.get('authId');
     var saveId = cookies.get('saveId');
+    console.log(saveId);
 
     // If doesn't exist, redirect to login
     // TODO: Add saving discord ID for fast join
@@ -59,6 +60,9 @@ socket.on('invalidSaveId', () => {
 socket.on('checkSuccess', (data) => {
     // Save the discordId
     discordId = data.userInfo.id;
+
+    // Create save cookies
+    cookies.set('saveId', discordId);
 
     // Set the avatar, username, and discriminator
     document.getElementById('loading').style.display = 'none';

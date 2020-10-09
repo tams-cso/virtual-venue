@@ -152,8 +152,8 @@ const run = async (server, gameServer) => {
 
             // Get nickname if discordList has player
             var nickname = null;
-            if (discordList[userInfo.id].player != null)
-                nickname = discordList[userInfo.id].player.nickname;
+            if (discordList[saveId].player != null)
+                nickname = discordList[saveId].player.nickname;
 
             // Send success message to user
             socket.emit('checkSuccess', { userInfo: discordList[saveId].userInfo, nickname });

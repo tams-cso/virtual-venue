@@ -174,23 +174,23 @@ function loop() {
 
     if (change) {
         // // Check if player out of bounds
-        // if (
-        //     currPlayer.x < 0 ||
-        //     currPlayer.x > board.w - SIZE ||
-        //     currPlayer.y < 0 ||
-        //     currPlayer.y > board.h - SIZE
-        // ) {
-        //     currPlayer = { ...tempPlayer };
-        //     return;
-        // }
+        if (
+            currPlayer.x < 0 ||
+            currPlayer.x > board.w - SIZE ||
+            currPlayer.y < 0 ||
+            currPlayer.y > board.h - SIZE
+        ) {
+            currPlayer = { ...tempPlayer };
+            return;
+        }
 
         // // Check if player ran into wall
-        // var bounds = [
-        //     { x: currPlayer.x, y: currPlayer.y },
-        //     { x: currPlayer.x + SIZE, y: currPlayer.y },
-        //     { x: currPlayer.x, y: currPlayer.y + SIZE },
-        //     { x: currPlayer.x + SIZE, y: currPlayer.y + SIZE },
-        // ];
+        var bounds = [
+            { x: currPlayer.x, y: currPlayer.y },
+            { x: currPlayer.x + SIZE, y: currPlayer.y },
+            { x: currPlayer.x, y: currPlayer.y + SIZE },
+            { x: currPlayer.x + SIZE, y: currPlayer.y + SIZE },
+        ];
         // gameObjects.forEach((obj) => {
         //     if (obj.type == 'wall') {
         //         bounds.forEach((b) => {

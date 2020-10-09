@@ -96,6 +96,10 @@ socket.on('load', (data) => {
         keyList[event.key.toLowerCase()] = false;
     });
 
+    // Show canvas
+    document.getElementById('pregame').style.display = 'none';
+    document.getElementById('canvas').style.display = 'block';
+
     // Save the loaded variables
     gameObjects = data.gameObjects;
     discordId = data.discordId;

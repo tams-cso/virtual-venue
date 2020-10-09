@@ -1,4 +1,3 @@
-const WS_PORT = 2567; // Port of colyseus ws
 const FPS = 25; // Frames per second
 const SPEED = 16; // # of pixels moved per frame
 const SIZE = 32; // Size of player in pixels
@@ -174,34 +173,34 @@ function loop() {
     }
 
     if (change) {
-        // Check if player out of bounds
-        if (
-            currPlayer.x < 0 ||
-            currPlayer.x > board.w - SIZE ||
-            currPlayer.y < 0 ||
-            currPlayer.y > board.h - SIZE
-        ) {
-            currPlayer = { ...tempPlayer };
-            return;
-        }
+        // // Check if player out of bounds
+        // if (
+        //     currPlayer.x < 0 ||
+        //     currPlayer.x > board.w - SIZE ||
+        //     currPlayer.y < 0 ||
+        //     currPlayer.y > board.h - SIZE
+        // ) {
+        //     currPlayer = { ...tempPlayer };
+        //     return;
+        // }
 
-        // Check if player ran into wall
-        var bounds = [
-            { x: currPlayer.x, y: currPlayer.y },
-            { x: currPlayer.x + SIZE, y: currPlayer.y },
-            { x: currPlayer.x, y: currPlayer.y + SIZE },
-            { x: currPlayer.x + SIZE, y: currPlayer.y + SIZE },
-        ];
-        gameObjects.forEach((obj) => {
-            if (obj.type == 'wall') {
-                bounds.forEach((b) => {
-                    if (b.x > obj.x && b.x < obj.x + obj.w && b.y > obj.y && b.y < obj.y + obj.h) {
-                        currPlayer = { ...tempPlayer };
-                        return;
-                    }
-                });
-            }
-        });
+        // // Check if player ran into wall
+        // var bounds = [
+        //     { x: currPlayer.x, y: currPlayer.y },
+        //     { x: currPlayer.x + SIZE, y: currPlayer.y },
+        //     { x: currPlayer.x, y: currPlayer.y + SIZE },
+        //     { x: currPlayer.x + SIZE, y: currPlayer.y + SIZE },
+        // ];
+        // gameObjects.forEach((obj) => {
+        //     if (obj.type == 'wall') {
+        //         bounds.forEach((b) => {
+        //             if (b.x > obj.x && b.x < obj.x + obj.w && b.y > obj.y && b.y < obj.y + obj.h) {
+        //                 currPlayer = { ...tempPlayer };
+        //                 return;
+        //             }
+        //         });
+        //     }
+        // });
 
         var currVcState = false;
         gameObjects.forEach((obj) => {

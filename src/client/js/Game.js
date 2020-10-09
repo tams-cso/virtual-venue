@@ -1,10 +1,10 @@
-var cookies = new UniversalCookie();
-var socket = io(); // TODO: connect 2nd socket
-
+const WS_PORT = 2567; // Port of colyseus ws
 const FPS = 25; // Frames per second
 const SPEED = 16; // # of pixels moved per frame
 const SIZE = 32; // Size of player in pixels
-const WS_PORT = 2567; // Port of colyseus ws
+
+var cookies = new UniversalCookie();
+var socket = io();
 
 var keyList = {};
 var canvas = document.getElementById('canvas');
@@ -23,7 +23,6 @@ function getLogin() {
     // Get the authId & remove cookie
     var authId = cookies.get('authId');
     var saveId = cookies.get('saveId');
-    console.log(saveId);
 
     // If doesn't exist, redirect to login
     // TODO: Add saving discord ID for fast join
@@ -90,8 +89,6 @@ socket.on('checkFail', fail);
 
 // Run when the game loads
 socket.on('load', (data) => {
-    console.log(data)
-
     // Keydown listener
     window.addEventListener('keydown', (event) => {
         keyList[event.key.toLowerCase()] = true;
@@ -121,7 +118,7 @@ socket.on('load', (data) => {
     setInterval(loop, 1000 / FPS);
 });
 
-// Run when the game updates TOOD: update to colyseus
+// Run when the game updates
 socket.on('update', (players) => {
     if (discordId !== null) {
         currPlayer = players[discordId];

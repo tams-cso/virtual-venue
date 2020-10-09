@@ -212,8 +212,6 @@ const run = async (server) => {
         socket.on('disconnect', () => {
             if (Object.keys(players).find((key) => key === socket.id) === undefined) return;
 
-            console.log(discordList);
-            console.log(socket.id);
             const discordObject = discordList[socket.id];
             console.log(
                 `${discordObject.userInfo.username} #${discordObject.userInfo.discriminator} left the game`

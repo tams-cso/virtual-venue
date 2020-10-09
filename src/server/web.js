@@ -1,7 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const colyseus = require('colyseus');
-const monitor = require('@colyseus/monitor').monitor;
 const path = require('path');
 const http = require('http');
 const PORT = 8082;
@@ -29,25 +27,14 @@ module.exports = () => {
     // Start Node.js server
     server.listen(PORT, () => console.log(`Listening on port ${PORT}!`));
 
-    // Create app for Colyseus ws
+    // Create app for game websocket
     const wsApp = express();
     const wsServer = http.Server(wsApp);
     wsApp.use(cors());
     wsApp.use(express.json());
 
-    // Create colyseus game room
-    const GameRoom = require('./GameRoom').GameRoom;
-    const gameServer = new colyseus.Server({
-        server: wsServer,
-    });
-
-    // Define game room & monitor location
-    gameServer.define('virtual-venue', GameRoom);
-    wsApp.use('/colyseus', monitor());
-
     // Listen on colyseus port
-    gameServer.listen(WS_PORT);
-    console.log(`Listening on ws://localhost:${WS_PORT}`);
+    wsServer.listen(WS_PORT, () => console.log(`Listening on ws://localhost:${WS_PORT}`));
 
-    return server;
+    return { server, wsServer };
 };

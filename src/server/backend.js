@@ -11,7 +11,7 @@ var socketList = {};
 var players = {};
 const TIMEOUT_MAX = 600000; // 10 minutes
 
-const run = async (server) => {
+const run = async (server, gameServer) => {
     const io = require('socket.io')(server, {});
 
     io.sockets.on('connection', function (socket) {
@@ -124,6 +124,11 @@ const run = async (server) => {
                 return;
             }
 
+            // Remove the authId from the map
+            delete authMap[authId];
+            clearTimeout(timeoutMap[authId]);
+            delete timeoutMap[authId];
+
             // Send client userInfo and nickname if not null
             const userInfo = Object.values(discordList).find((obj) => obj.authId === authId)
                 .userInfo;
@@ -134,29 +139,30 @@ const run = async (server) => {
                 nickname = discordList[userInfo.id].player.nickname;
 
             // Emit success with userInfo and nickname
-            socket.emit('checkSuccess', { userInfo, nickname, authId });
+            socket.emit('checkSuccess', { userInfo, nickname });
+        });
+
+        // Check if the user has a pre-saved instance
+        socket.on('checkSaveId', (saveId) => {
+            // Check if the saveId is in the discord list and return if not
+            if (Object.keys(discordList).find((key) => key === saveId) === undefined) {
+                socket.emit('invalidSaveId');
+                return;
+            }
+
+            // Get nickname if discordList has player
+            var nickname = null;
+            if (discordList[userInfo.id].player != null)
+                nickname = discordList[userInfo.id].player.nickname;
+
+            // Send success message to user
+            socket.emit('checkSuccess', { userInfo: discordList[saveId].userInfo, nickname });
         });
 
         // When client is ready to join game
         socket.on('start', (data) => {
-            // Check to see if authMap still contains authId
-            if (Object.keys(authMap).find((key) => key === data.authId) === undefined) {
-                socket.emit('checkFail');
-                return;
-            }
-
-            // FINALLY! Remove the authId from the map; we're done!
-            delete authMap[data.authId];
-            clearTimeout(timeoutMap[data.authId]);
-            delete timeoutMap[data.authId];
-
-            // Get the user from the discordList using authId
-            const discordObject = Object.values(discordList).find(
-                (obj) => obj.authId === data.authId
-            );
-
-            // Clear the authId
-            discordObject.authId = null;
+            // Get the user from the discordList using discordId
+            const discordObject = discordList[data.discordId];
 
             // Get the player object or create a new one at starting location
             // Randomize the color TOOD: Player color selector?
@@ -199,13 +205,13 @@ const run = async (server) => {
             io.emit('update', players);
         });
 
-        // When player moves TOOD: convert to colyseus
+        // When player moves TOOD: convert to gameserver
         socket.on('move', (movedPlayer) => {
             players[socket.id] = movedPlayer;
             io.emit('update', players);
         });
 
-        // When the player disconnects from the socket TODO: convert to colyseus
+        // When the player disconnects from the socket
         socket.on('disconnect', () => {
             if (Object.keys(players).find((key) => key === socket.id) === undefined) return;
 
@@ -220,6 +226,9 @@ const run = async (server) => {
             io.emit('update', players);
         });
     });
+
+    // Create ws for game
+    const io2 = require('socket.io')(gameServer, {});
 };
 
 // Callback function that's called when the bot detects a new user joining the guild

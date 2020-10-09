@@ -1,12 +1,11 @@
 var cookies = new UniversalCookie();
-var socket = io();
+var socket = io(); // TODO: connect 2nd socket
 
 const FPS = 25; // Frames per second
 const SPEED = 16; // # of pixels moved per frame
 const SIZE = 32; // Size of player in pixels
 const WS_PORT = 2567; // Port of colyseus ws
 
-var authId;
 var keyList = {};
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
@@ -22,19 +21,45 @@ var inVc = false;
 // When the page loads
 function getLogin() {
     // Get the authId & remove cookie
-    authId = cookies.get('authId');
-    cookies.remove('authId');
+    var authId = cookies.get('authId');
+    var saveId = cookies.get('saveId');
 
     // If doesn't exist, redirect to login
     // TODO: Add saving discord ID for fast join
-    if (authId === undefined) fail();
+    if (authId === undefined && saveId === undefined) fail();
 
-    // Send authId to the server to check
+    // Check save id if it exists
+    if (saveId !== undefined) {
+        socket.emit('checkSaveId', saveId);
+        return;
+    }
+
+    // Send authId to the server to check + remove them from cookies
+    cookies.remove('authId');
     socket.emit('check', authId);
 }
 
+// If the save ID was not in the server discordList
+socket.on('invalidSaveId', () => {
+    // Invalid saveId
+    cookies.remove('saveId');
+
+    // Get and remove authId from cookies
+    var authId = cookies.get('authId');
+    cookies.remove('authId');
+
+    // If no authId stored, redirect
+    if (authId === undefined) fail();
+
+    // Send authId to server to check
+    socket.emit('check', authId);
+});
+
 // If the authId was successful upon get
 socket.on('checkSuccess', (data) => {
+    // Save the discordId
+    discordId = data.userInfo.id;
+
     // Set the avatar, username, and discriminator
     document.getElementById(
         'avatar'
@@ -60,9 +85,6 @@ socket.on('checkFail', fail);
 // Run when the game loads
 socket.on('load', (data) => {
     console.log(data)
-    // Resize the canvas and add listener for resize
-    resize();
-    window.addEventListener('resize', resize);
 
     // Keydown listener
     window.addEventListener('keydown', (event) => {
@@ -74,38 +96,18 @@ socket.on('load', (data) => {
         keyList[event.key.toLowerCase()] = false;
     });
 
-    // Create colyseus client
-    var host = window.document.location.host.replace(/:.*/, '');
-    var client = new Colyseus.Client(
-        location.protocol.replace('http', 'ws') + '//' + host + ':' + WS_PORT
-    );
-
-    // Join or create game room
-    client.joinOrCreate('virtual-venue').then((room) => {
-        console.log('joined');
-        room.onStateChange.once(function (state) {
-            console.log('Initial room state: ' + state);
-        });
-
-        room.onStateChange(function (state) {
-            // This signal trigged on each patch
-        });
-
-        room.onMessage('update', function (message) {
-            var p = document.createElement('p');
-            p.innerText = message;
-            document.querySelector('#messages').appendChild(p);
-        });
-    });
-
     // Save the loaded variables
     gameObjects = data.gameObjects;
     discordId = data.discordId;
     currPlayer = data.players[discordId];
     lastPlayerState = data.players;
     board = data.boardSize;
-    draw();
 
+    // Resize the canvas and add listener for resize
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Set game loop
     setInterval(loop, 1000 / FPS);
 });
 
@@ -128,7 +130,7 @@ function enterGame() {
     }
 
     // Tell the server that the client is ready to start the game
-    socket.emit('start', { authId, nick });
+    socket.emit('start', { nick, discordId });
 }
 
 // Function to keep the canvas centered and fullscreened
@@ -263,4 +265,9 @@ function fail() {
     setTimeout(() => {
         window.location = window.origin;
     }, 1250);
+}
+
+function logout() {
+    cookies.remove('saveId');
+    window.location = window.origin;
 }

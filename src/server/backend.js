@@ -7,7 +7,6 @@ var authMap = {};
 var joinMap = {};
 var timeoutMap = {};
 var discordList = {};
-var socketList = {};
 var players = {};
 const TIMEOUT_MAX = 600000; // 10 minutes
 
@@ -152,8 +151,7 @@ const run = async (server, gameServer) => {
 
             // Get nickname if discordList has player
             var nickname = null;
-            if (discordList[saveId].player != null)
-                nickname = discordList[saveId].player.nickname;
+            if (discordList[saveId].player != null) nickname = discordList[saveId].player.nickname;
 
             // Send success message to user
             socket.emit('checkSuccess', { userInfo: discordList[saveId].userInfo, nickname });
@@ -178,15 +176,14 @@ const run = async (server, gameServer) => {
                 discordList[discordObject.userInfo.id].player = tempPlayer;
             } else {
                 tempPlayer = discordObject.player;
-                tempPlayer.nickname = data.nickname;
+                tempPlayer.nickname = data.nick;
             }
 
             // Add the player to the players list
             players[discordObject.userInfo.id] = tempPlayer;
 
-            // Set the socket id to the socketlist and add it to the socketList
+            // Set the socket ID
             socket.id = discordObject.userInfo.id;
-            socketList[socket.id] = socket;
 
             // Log the discord tag of the user who joined the game
             console.log(
@@ -205,7 +202,7 @@ const run = async (server, gameServer) => {
             io.emit('update', players);
         });
 
-        // When player moves TOOD: convert to gameserver
+        // When player moves
         socket.on('move', (movedPlayer) => {
             players[socket.id] = movedPlayer;
             io.emit('update', players);
@@ -215,20 +212,18 @@ const run = async (server, gameServer) => {
         socket.on('disconnect', () => {
             if (Object.keys(players).find((key) => key === socket.id) === undefined) return;
 
+            console.log(discordList);
+            console.log(socket.id);
             const discordObject = discordList[socket.id];
             console.log(
                 `${discordObject.userInfo.username} #${discordObject.userInfo.discriminator} left the game`
             );
 
             discordList[socket.id].player = players[socket.id];
-            delete socketList[socket.id];
             delete players[socket.id];
             io.emit('update', players);
         });
     });
-
-    // Create ws for game
-    const io2 = require('socket.io')(gameServer, {});
 };
 
 // Callback function that's called when the bot detects a new user joining the guild

@@ -61,6 +61,8 @@ socket.on('checkSuccess', (data) => {
     discordId = data.userInfo.id;
 
     // Set the avatar, username, and discriminator
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('pregame').style.display = 'block';
     document.getElementById(
         'avatar'
     ).src = `https://cdn.discordapp.com/avatars/${data.userInfo.id}/${data.userInfo.avatar}.png`;
@@ -264,6 +266,7 @@ function draw() {
 }
 
 function fail() {
+    document.getElementById('loading').style.display = 'none';
     document.getElementById('canvas').style.display = 'none';
     document.getElementById('error').style.display = 'block';
     setTimeout(() => {

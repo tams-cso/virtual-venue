@@ -26,7 +26,12 @@ html, body {
     left: 1em;
 }
 
+#loading {
+    text-align: center;
+}
+
 #pregame {
+    display: none;
     margin: auto;
     width: 40em;
     height: 25em;

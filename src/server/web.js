@@ -1,7 +1,6 @@
 const express = require('express');
 const path = require('path');
 const http = require('http');
-const PORT = 80;
 
 module.exports = () => {
     // Create app for main pagnation
@@ -23,7 +22,7 @@ module.exports = () => {
     });
 
     // Start Node.js server
-    server.listen(PORT, () => console.log(`Listening on port ${PORT}!`));
+    server.listen(process.env.PORT, () => console.log(`Listening on port ${process.env.PORT}!`));
 
     return server;
 };

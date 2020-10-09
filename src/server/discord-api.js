@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const config = require('../config.json');
+const config = require('./Config');
 const querystring = require('querystring');
 
 const getAccessToken = async (code) => {

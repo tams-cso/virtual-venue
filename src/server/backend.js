@@ -1,6 +1,6 @@
 const querystring = require('querystring');
 const { getAccessToken, getUserInfo } = require('./discord-api');
-const config = require('../config.json');
+const config = require('./Config');
 const gameObjects = require('../gameObjects.json');
 const bot = require('./bot');
 

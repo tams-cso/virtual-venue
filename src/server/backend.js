@@ -10,7 +10,7 @@ var discordList = {};
 var players = {};
 const TIMEOUT_MAX = 600000; // 10 minutes
 
-const run = async (server, gameServer) => {
+const run = async (server) => {
     const io = require('socket.io')(server, {});
 
     io.sockets.on('connection', function (socket) {

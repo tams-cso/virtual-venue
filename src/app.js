@@ -3,8 +3,8 @@ const Web = require('./server/web');
 const Backend = require('./server/backend');
 
 // Start webpage
-const { server, gameServer } = Web();
-Backend.run(server, gameServer);
+const server = Web();
+Backend.run(server);
 
 // Start discord bot
 Bot.runBot();

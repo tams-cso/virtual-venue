@@ -102,6 +102,7 @@ socket.on('load', (data) => {
     // Show canvas
     document.getElementById('pregame').style.display = 'none';
     document.getElementById('canvas').style.display = 'block';
+    document.getElementById('coords').style.display = 'block';
 
     // Save the loaded variables
     gameObjects = data.gameObjects;
@@ -202,14 +203,40 @@ function loop() {
             }
         });
 
-        // Check if player is in VC
-        // TODO
+        var currVcState = false;
+        gameObjects.forEach((obj) => {
+            if (obj.type == 'vc') {
+                bounds.forEach((b) => {
+                    if (b.x > obj.x && b.x < obj.x + obj.w && b.y > obj.y && b.y < obj.y + obj.h) {
+                        if (!inVc) {
+                            socket.emit('joinVc', { id: currPlayer.user.id, vc: obj.vcName });
+                            inVc = true;
+                        }
+                        currVcState = true;
+                    }
+                });
+            }
+        });
+
+        if (inVc && !currVcState) {
+            socket.emit('leaveVc', currPlayer.user.id);
+            inVc = false;
+        }
 
         // Update coords and server
         document.getElementById('coords').innerHTML = `(${currPlayer.x}, ${currPlayer.y})`;
         socket.emit('move', currPlayer);
     }
 }
+
+socket.on('successVc', () => {
+    console.log("JOINED VC!!!");
+});
+
+socket.on('failVc', () => {
+    // TODO: kick them out?
+    console.log(":(");
+});
 
 function randInt(min, max) {
     return Math.floor(Math.random() * (max - min) + min);

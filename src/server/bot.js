@@ -1,10 +1,8 @@
 const Discord = require('discord.js');
 const config = require('../config.json');
 const gameObjects = require('../gameObjects.json');
-const { joinCallback } = require('./backend');
 
 const client = new Discord.Client();
-// var guild;
 
 /**
  * The main function for starting the discord bot
@@ -22,8 +20,6 @@ const runBot = () => {
     });
 
     client.on('message', (message) => {
-        console.log();
-
         // Check to see if the message is for the bot
         if (!message.content.startsWith(config.prefix) || message.author.bot) return;
 
@@ -47,6 +43,7 @@ const runBot = () => {
     });
 
     client.on('guildMemberAdd', (member) => {
+        const { joinCallback } = require('./backend');
         joinCallback(member.user.id);
     });
 };
@@ -57,6 +54,7 @@ const runBot = () => {
  * @param {Discord.Message} message
  */
 const help = (message) => {
+    console.log("wgnfeijrghsejr");
     message.channel.send(
         message.author.toString() +
             `
@@ -147,4 +145,35 @@ const userInGuild = (userId) => {
     return guild.members.cache.find((member) => member.user.id === userId) !== undefined;
 };
 
-module.exports = { runBot, userInGuild };
+/**
+ * Checks to see if user is in main vc and if vc exists
+ * Then will move the user into the specified vc
+ *
+ * @param {string} userId
+ * @param {string} vcName
+ * @returns {Promise<boolean>} True if vc was successfully joined
+ */
+const joinVc = async (userId, vcName) => {
+    var guild = client.guilds.cache.first();
+    var memberVoice = guild.members.cache.find((member) => member.id === userId).voice;
+    var mainVc = guild.channels.cache.find((channel) => channel.name === 'main');
+
+    if (memberVoice.channelID !== mainVc.id) return false;
+
+    var vc = guild.channels.cache.find((channel) => channel.name === vcName);
+
+    await memberVoice.setChannel(vc);
+    return true;
+};
+
+const leaveVc = (userId) => {
+    var guild = client.guilds.cache.first();
+    var memberVoice = guild.members.cache.find((member) => member.id === userId).voice;
+    var userCurrVcId = memberVoice.channelID;
+    var mainVc = guild.channels.cache.find((channel) => channel.name === 'main');
+    if (userCurrVcId !== undefined) {
+        memberVoice.setChannel(mainVc);
+    }
+};
+
+module.exports = { runBot, userInGuild, joinVc, leaveVc };

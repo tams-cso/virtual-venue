@@ -2,6 +2,7 @@ const querystring = require('querystring');
 const { getAccessToken, getUserInfo } = require('./discord-api');
 const config = require('../config.json');
 const gameObjects = require('../gameObjects.json');
+const bot = require('./bot');
 
 var authMap = {};
 var joinMap = {};
@@ -221,6 +222,16 @@ const run = async (server) => {
             delete players[socket.id];
             io.emit('update', players);
         });
+
+        socket.on('joinVc', async (data) => {
+            const good = await bot.joinVc(data.id, data.vc);
+            if (good) socket.emit('successVc');
+            else socket.emit('nullVc');
+        });
+
+        socket.on('leaveVc', (userId) => {
+            bot.leaveVc(userId);
+        })
     });
 };
 

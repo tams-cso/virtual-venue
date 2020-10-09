@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const http = require('http');
-const PORT = 8082;
+const PORT = 80;
 
 module.exports = () => {
     // Create app for main pagnation

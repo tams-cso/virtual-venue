@@ -191,16 +191,16 @@ function loop() {
             { x: currPlayer.x, y: currPlayer.y + SIZE },
             { x: currPlayer.x + SIZE, y: currPlayer.y + SIZE },
         ];
-        // gameObjects.forEach((obj) => {
-        //     if (obj.type == 'wall') {
-        //         bounds.forEach((b) => {
-        //             if (b.x > obj.x && b.x < obj.x + obj.w && b.y > obj.y && b.y < obj.y + obj.h) {
-        //                 currPlayer = { ...tempPlayer };
-        //                 return;
-        //             }
-        //         });
-        //     }
-        // });
+        gameObjects.forEach((obj) => {
+            if (obj.type == 'wall') {
+                bounds.forEach((b) => {
+                    if (b.x > obj.x && b.x < obj.x + obj.w && b.y > obj.y && b.y < obj.y + obj.h) {
+                        currPlayer = { ...tempPlayer };
+                        return;
+                    }
+                });
+            }
+        });
 
         var currVcState = false;
         gameObjects.forEach((obj) => {

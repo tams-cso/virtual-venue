@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const http = require('http');
+const PORT = 5000; // If not assigned a port in env
 
 module.exports = () => {
     // Create app for main pagnation
@@ -22,7 +23,7 @@ module.exports = () => {
     });
 
     // Start Node.js server
-    server.listen(process.env.PORT, () => console.log(`Listening on port ${process.env.PORT}!`));
+    server.listen(process.env.PORT || PORT, () => console.log(`Listening on port ${process.env.PORT || PORT}!`));
 
     return server;
 };

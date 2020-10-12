@@ -7,7 +7,7 @@ module.exports = {
     botToken: process.env.BOT_TOKEN,
     clientId: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackUri: process.env.CALLBACK_URI,
+    redirectUri: process.env.REDIRECT_URI,
     start: {
         x: process.env.START_X,
         y: process.env.START_Y,

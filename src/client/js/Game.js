@@ -252,3 +252,13 @@ function logout() {
     cookies.remove('saveId');
     window.location = window.origin;
 }
+
+socket.on('playerLeave', (id) => {
+    delete playerList[id];
+    draw();
+});
+
+socket.on('playerJoin', (player) => {
+    playerList[player.user.id] = player;
+    draw();
+})

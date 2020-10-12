@@ -208,6 +208,9 @@ const run = async (server) => {
                 gameObjects,
                 boardSize: config.boardSize,
             });
+
+            // Tell everyone that someone joined
+            io.emit('playerJoin', tempPlayer);
         });
 
         // When player moves
@@ -226,7 +229,7 @@ const run = async (server) => {
 
             discordList[socket.id].player = players[socket.id];
             delete players[socket.id];
-            io.emit('update', players);
+            io.emit('playerLeave', socket.id);
         });
     });
 

@@ -1,4 +1,3 @@
-// Load libraries
 var cookies = new UniversalCookie();
 var socket = io();
 
@@ -13,10 +12,11 @@ var viewport = { x: 0, y: 0 };
 var center = { x: 0, y: 0 };
 var movements = { shift: false };
 var shift = false;
+var lastMove = new Date().getTime();
 
 const SIZE = 32; // Size of player in pixels
 const SPEED = 16; // # of pixels moved per frame
-const FPS = 25; // Frames per second
+const FPS = 20; // Frames per second
 
 // When the page loads
 function getLogin() {
@@ -120,12 +120,24 @@ socket.on('load', (data) => {
     // Keydown listener
     window.addEventListener('keydown', (event) => {
         movements[event.key.toLowerCase()] = true;
+        lastMove = (new Date()).getTime();
     });
 
     // Keyup listener
     window.addEventListener('keyup', (event) => {
         movements[event.key.toLowerCase()] = false;
     });
+
+    // Stop if window loses focus
+    window.onblur = () => {
+        movements = { shift: false };
+    };
+
+    // Make sure they stop if they leave
+    setInterval(() => {
+        var now = new Date().getTime();
+        if (now - lastMove > 500) movements = { shift: false };
+    }, 500);
 
     // Movement loop
     setInterval(moveStuff, 1000 / FPS);
@@ -261,4 +273,4 @@ socket.on('playerLeave', (id) => {
 socket.on('playerJoin', (player) => {
     playerList[player.user.id] = player;
     draw();
-})
+});

@@ -9,12 +9,12 @@ module.exports = {
     clientSecret: process.env.CLIENT_SECRET,
     redirectUri: process.env.REDIRECT_URI,
     start: {
-        x: process.env.START_X,
-        y: process.env.START_Y,
+        x: Number(process.env.START_X),
+        y: Number(process.env.START_Y),
     },
     boardSize: {
-        w: process.env.BOARD_SIZE_W,
-        h: process.env.BOARD_SIZE_H,
+        w: Number(process.env.BOARD_SIZE_W),
+        h: Number(process.env.BOARD_SIZE_H),
     },
     gameCategoryName: process.env.GAME_CATEGORY_NAME,
     prefix: process.env.PREFIX,

@@ -1,21 +1,20 @@
-const FPS = 25; // Frames per second
-const SPEED = 16; // # of pixels moved per frame
-const SIZE = 32; // Size of player in pixels
-
+// Load libraries
 var cookies = new UniversalCookie();
 var socket = io();
 
 var keyList = {};
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
-var currPlayer;
-var lastPlayerState;
+var playerList = {};
 var discordId = null;
 var gameObjects;
 var board = { w: 0, h: 0 };
 var viewport = { x: 0, y: 0 };
 var center = { x: 0, y: 0 };
-var inVc = false;
+var shift = false;
+
+const SIZE = 32; // Size of player in pixels
+const SPEED = 16; // # of pixels moved per frame
 
 // When the page loads
 function getLogin() {
@@ -83,50 +82,6 @@ socket.on('checkSuccess', (data) => {
     });
 });
 
-// If the authId check failed and tell user login failed
-socket.on('checkFail', fail);
-
-// Run when the game loads
-socket.on('load', (data) => {
-    // Keydown listener
-    window.addEventListener('keydown', (event) => {
-        keyList[event.key.toLowerCase()] = true;
-    });
-
-    // Keyup listener
-    window.addEventListener('keyup', (event) => {
-        keyList[event.key.toLowerCase()] = false;
-    });
-
-    // Show canvas
-    document.getElementById('pregame').style.display = 'none';
-    document.getElementById('canvas').style.display = 'block';
-    document.getElementById('coords').style.display = 'block';
-
-    // Save the loaded variables
-    gameObjects = data.gameObjects;
-    discordId = data.discordId;
-    currPlayer = data.players[discordId];
-    lastPlayerState = data.players;
-    board = data.boardSize;
-
-    // Resize the canvas and add listener for resize
-    resize();
-    window.addEventListener('resize', resize);
-
-    // Set game loop
-    setInterval(loop, 1000 / FPS);
-});
-
-// Run when the game updates
-socket.on('update', (players) => {
-    if (discordId !== null) {
-        currPlayer = players[discordId];
-        lastPlayerState = players;
-        draw();
-    }
-});
-
 function enterGame() {
     // Get the nickname and check that it isn't empty
     var nick = document.getElementById('nick-input').value;
@@ -140,6 +95,53 @@ function enterGame() {
     socket.emit('start', { nick, discordId });
 }
 
+// If the authId check failed and tell user login failed
+socket.on('checkFail', fail);
+
+// Run when the game loads
+socket.on('load', (data) => {
+    // Show canvas
+    document.getElementById('pregame').style.display = 'none';
+    document.getElementById('canvas').style.display = 'block';
+    document.getElementById('coords').style.display = 'block';
+
+    // Save the loaded variables
+    gameObjects = data.gameObjects;
+    discordId = data.discordId;
+    playerList = data.players;
+    board = data.boardSize;
+
+    // Resize the canvas (with drawing) and add listener for resize
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Keydown listener
+    window.addEventListener('keydown', moveEvent);
+
+    // Keyup listener
+    window.addEventListener('keyup', (event) => {
+        if (event.key.toLowerCase() === 'shift') shift = false;
+    });
+});
+
+// Run when the game updates
+socket.on('update', (moveList) => {
+    if (discordId === null) return;
+
+    for (var i in moveList) {
+        var move = moveList[i];
+        if (move.dir === 'x') playerList[i].x += move.d * SPEED;
+        else  playerList[i].y += move.d * SPEED;
+    }
+
+    // Update coords
+    document.getElementById(
+        'coords'
+    ).innerHTML = `(${playerList[discordId].x}, ${playerList[discordId].y})`;
+
+    draw();
+});
+
 // Function to keep the canvas centered and fullscreened
 // and is called whenever the viewport size changes
 function resize() {
@@ -152,90 +154,52 @@ function resize() {
     draw();
 }
 
-function loop() {
-    var tempPlayer = { ...currPlayer };
-    var change = false;
-    if (keyList['w'] || keyList['arrowup']) {
-        currPlayer.y -= SPEED * (keyList['shift'] ? 2 : 1);
-        change = true;
-    }
-    if (keyList['s'] || keyList['arrowdown']) {
-        currPlayer.y += SPEED * (keyList['shift'] ? 2 : 1);
-        change = true;
-    }
-    if (keyList['a'] || keyList['arrowleft']) {
-        currPlayer.x -= SPEED * (keyList['shift'] ? 2 : 1);
-        change = true;
-    }
-    if (keyList['d'] || keyList['arrowright']) {
-        currPlayer.x += SPEED * (keyList['shift'] ? 2 : 1);
-        change = true;
-    }
-
-    if (change) {
-        // // Check if player out of bounds
-        if (
-            currPlayer.x < 0 ||
-            currPlayer.x > board.w - SIZE ||
-            currPlayer.y < 0 ||
-            currPlayer.y > board.h - SIZE
-        ) {
-            currPlayer = { ...tempPlayer };
-            return;
-        }
-
-        // // Check if player ran into wall
-        var bounds = [
-            { x: currPlayer.x, y: currPlayer.y },
-            { x: currPlayer.x + SIZE, y: currPlayer.y },
-            { x: currPlayer.x, y: currPlayer.y + SIZE },
-            { x: currPlayer.x + SIZE, y: currPlayer.y + SIZE },
-        ];
-        gameObjects.forEach((obj) => {
-            if (obj.type == 'wall') {
-                bounds.forEach((b) => {
-                    if (b.x > obj.x && b.x < obj.x + obj.w && b.y > obj.y && b.y < obj.y + obj.h) {
-                        currPlayer = { ...tempPlayer };
-                        return;
-                    }
-                });
-            }
-        });
-
-        var currVcState = false;
-        gameObjects.forEach((obj) => {
-            if (obj.type == 'vc') {
-                bounds.forEach((b) => {
-                    if (b.x > obj.x && b.x < obj.x + obj.w && b.y > obj.y && b.y < obj.y + obj.h) {
-                        if (!inVc) {
-                            socket.emit('joinVc', { id: currPlayer.user.id, vc: obj.vcName });
-                            inVc = true;
-                        }
-                        currVcState = true;
-                    }
-                });
-            }
-        });
-
-        if (inVc && !currVcState) {
-            socket.emit('leaveVc', currPlayer.user.id);
-            inVc = false;
-        }
-
-        // Update coords and server
-        document.getElementById('coords').innerHTML = `(${currPlayer.x}, ${currPlayer.y})`;
-        socket.emit('move', currPlayer);
-    }
-}
-
 socket.on('successVc', () => {
-    console.log("JOINED VC!!!");
+    console.log('JOINED VC!!!');
 });
 
 socket.on('failVc', () => {
     // TODO: kick them out?
-    console.log(":(");
+    console.log(':(');
 });
+
+function moveEvent(event) {
+    var key = event.key.toLowerCase();
+
+    // Check shift
+    if (key === 'shift') {
+        shift = true;
+        return;
+    }
+
+    // Check move
+    var moveObj = { id: discordId, d: 0, dir: 'x' };
+    switch (key) {
+        case 'w':
+        case 'arrowup':
+            moveObj.d = shift ? -2 : -1;
+            moveObj.dir = 'y';
+            break;
+        case 'a':
+        case 'arrowleft':
+            moveObj.d = shift ? -2 : -1;
+            break;
+        case 's':
+        case 'arrowdown':
+            moveObj.d = shift ? 2 : 1;
+            moveObj.dir = 'y';
+            break;
+        case 'd':
+        case 'arrowright':
+            moveObj.d = shift ? 2 : 1;
+            break;
+        default:
+            return;
+    }
+
+    // If move, emit
+    socket.emit('move', moveObj);
+}
 
 function randInt(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
@@ -263,16 +227,16 @@ function draw() {
     if (discordId === null) return;
 
     viewport = {
-        x: Math.max(currPlayer.x - center.x, 0),
-        y: Math.max(currPlayer.y - center.y, 0),
+        x: Math.max(playerList[discordId].x - center.x, 0),
+        y: Math.max(playerList[discordId].y - center.y, 0),
     };
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     drawBackground();
 
-    for (var i in lastPlayerState) {
-        var p = lastPlayerState[i];
+    for (var i in playerList) {
+        var p = playerList[i];
 
         ctx.fillStyle = '#' + p.color;
         ctx.fillRect(p.x - viewport.x, p.y - viewport.y, SIZE, SIZE);

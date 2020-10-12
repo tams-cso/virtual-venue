@@ -8,7 +8,7 @@ module.exports = () => {
     const app = express();
     const server = http.Server(app);
 
-    // Use client folder resources statically
+    // Serve client folder resources statically
     app.use('/client', express.static(path.join(__dirname, '..', 'client')));
 
     // Express routes for auth

@@ -11,10 +11,12 @@ var gameObjects;
 var board = { w: 0, h: 0 };
 var viewport = { x: 0, y: 0 };
 var center = { x: 0, y: 0 };
+var movements = { shift: false };
 var shift = false;
 
 const SIZE = 32; // Size of player in pixels
 const SPEED = 16; // # of pixels moved per frame
+const FPS = 25; // Frames per second
 
 // When the page loads
 function getLogin() {
@@ -116,12 +118,17 @@ socket.on('load', (data) => {
     window.addEventListener('resize', resize);
 
     // Keydown listener
-    window.addEventListener('keydown', moveEvent);
+    window.addEventListener('keydown', (event) => {
+        movements[event.key.toLowerCase()] = true;
+    });
 
     // Keyup listener
     window.addEventListener('keyup', (event) => {
-        if (event.key.toLowerCase() === 'shift') shift = false;
+        movements[event.key.toLowerCase()] = false;
     });
+
+    // Movement loop
+    setInterval(moveStuff, 1000 / FPS);
 });
 
 // Run when the game updates
@@ -130,8 +137,8 @@ socket.on('update', (moveList) => {
 
     for (var i in moveList) {
         var move = moveList[i];
-        if (move.dir === 'x') playerList[i].x += move.d * SPEED;
-        else  playerList[i].y += move.d * SPEED;
+        playerList[i].x += move.dx * SPEED;
+        playerList[i].y += move.dy * SPEED;
     }
 
     // Update coords
@@ -163,42 +170,18 @@ socket.on('failVc', () => {
     console.log(':(');
 });
 
-function moveEvent(event) {
-    var key = event.key.toLowerCase();
+function moveStuff() {
+    var shift = movements.shift;
+    var moveObj = { id: discordId, dx: 0, dy: 0 };
 
-    // Check shift
-    if (key === 'shift') {
-        shift = true;
-        return;
-    }
-
-    // Check move
-    var moveObj = { id: discordId, d: 0, dir: 'x' };
-    switch (key) {
-        case 'w':
-        case 'arrowup':
-            moveObj.d = shift ? -2 : -1;
-            moveObj.dir = 'y';
-            break;
-        case 'a':
-        case 'arrowleft':
-            moveObj.d = shift ? -2 : -1;
-            break;
-        case 's':
-        case 'arrowdown':
-            moveObj.d = shift ? 2 : 1;
-            moveObj.dir = 'y';
-            break;
-        case 'd':
-        case 'arrowright':
-            moveObj.d = shift ? 2 : 1;
-            break;
-        default:
-            return;
-    }
+    // Move player
+    if (movements['a'] || movements['arrowleft']) moveObj.dx = shift ? -2 : -1;
+    else if (movements['d'] || movements['arrowright']) moveObj.dx = shift ? 2 : 1;
+    if (movements['w'] || movements['arrowup']) moveObj.dy = shift ? -2 : -1;
+    else if (movements['s'] || movements['arrowdown']) moveObj.dy = shift ? 2 : 1;
 
     // If move, emit
-    socket.emit('move', moveObj);
+    if (moveObj.dx !== 0 || moveObj.dy !== 0) socket.emit('move', moveObj);
 }
 
 function randInt(min, max) {

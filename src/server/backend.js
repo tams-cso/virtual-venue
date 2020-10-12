@@ -250,8 +250,8 @@ const gameLoop = () => {
         var tempPlayer = { x: currPlayer.x, y: currPlayer.y };
 
         // Move player
-        if (currMove.dir === 'x') currPlayer.x += currMove.d * SPEED;
-        else currPlayer.y += currMove.d * SPEED;
+        currPlayer.x += currMove.dx * SPEED;
+        currPlayer.y += currMove.dy * SPEED;
 
         // Check if player out of bounds
         if (

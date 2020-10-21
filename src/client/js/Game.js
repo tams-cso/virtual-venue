@@ -12,7 +12,8 @@ var viewport = { x: 0, y: 0 };
 var center = { x: 0, y: 0 };
 var movements = { shift: false };
 var shift = false;
-var lastMove = new Date().getTime();
+var notInGame = true;
+// var lastMove = new Date().getTime();
 
 const SIZE = 32; // Size of player in pixels
 const SPEED = 16; // # of pixels moved per frame
@@ -112,6 +113,7 @@ socket.on('load', (data) => {
     discordId = data.discordId;
     playerList = data.players;
     board = data.boardSize;
+    notInGame = false;
 
     // Resize the canvas (with drawing) and add listener for resize
     resize();
@@ -120,7 +122,7 @@ socket.on('load', (data) => {
     // Keydown listener
     window.addEventListener('keydown', (event) => {
         movements[event.key.toLowerCase()] = true;
-        lastMove = (new Date()).getTime();
+        // lastMove = (new Date()).getTime();
     });
 
     // Keyup listener
@@ -133,11 +135,11 @@ socket.on('load', (data) => {
         movements = { shift: false };
     };
 
-    // Make sure they stop if they leave
-    setInterval(() => {
-        var now = new Date().getTime();
-        if (now - lastMove > 500) movements = { shift: false };
-    }, 500);
+    // // Make sure they stop if they leave
+    // setInterval(() => {
+    //     var now = new Date().getTime();
+    //     if (now - lastMove > 500) movements = { shift: false };
+    // }, 500);
 
     // Movement loop
     setInterval(moveStuff, 1000 / FPS);
@@ -145,7 +147,7 @@ socket.on('load', (data) => {
 
 // Run when the game updates
 socket.on('update', (moveList) => {
-    if (discordId === null) return;
+    if (notInGame) return;
 
     for (var i in moveList) {
         var move = moveList[i];
@@ -266,11 +268,13 @@ function logout() {
 }
 
 socket.on('playerLeave', (id) => {
+    if (notInGame) return;
     delete playerList[id];
     draw();
 });
 
 socket.on('playerJoin', (player) => {
+    if (notInGame) return;
     playerList[player.user.id] = player;
     draw();
 });

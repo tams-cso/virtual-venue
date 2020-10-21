@@ -1,9 +1,9 @@
 const querystring = require('querystring');
 const { getAccessToken, getUserInfo } = require('./discord-api');
 const config = require('./Config');
-const gameObjects = require('../gameObjects.json');
 const bot = require('./bot');
 
+var gameObjects;
 var authMap = {};
 var joinMap = {};
 var timeoutMap = {};
@@ -11,15 +11,15 @@ var discordList = {};
 var players = {};
 var moveList = {};
 var socketList = {};
-var mainLoopTimer;
+var mainLoopTimer; // TODO: get rid lmao
 var io;
 
 const TIMEOUT_MAX = 600000; // 10 minutes
 const FPS = 25; // Frames per second
-const SIZE = 32; // Size of player in pixels
-const SPEED = 16; // # of pixels moved per frame
 
-const run = async (server) => {
+const run = async (server, gameObjs) => {
+    gameObjects = gameObjs;
+
     io = require('socket.io')(server, {});
 
     io.sockets.on('connection', function (socket) {
@@ -175,14 +175,7 @@ const run = async (server) => {
             // Randomize the color TOOD: Player color selector?
             var tempPlayer;
             if (discordObject.player === null) {
-                tempPlayer = {
-                    x: config.start.x,
-                    y: config.start.y,
-                    color: randInt(0, 16777215).toString(16).padStart(6, '0'),
-                    nickname: data.nick,
-                    user: discordObject.userInfo,
-                    inVc: false,
-                };
+                tempPlayer = Player(config.start.x, config.start.y, data.nick, discordObject.userInfo);
                 discordList[discordObject.userInfo.id].player = tempPlayer;
             } else {
                 tempPlayer = discordObject.player;
@@ -253,15 +246,15 @@ const gameLoop = () => {
         var tempPlayer = { x: currPlayer.x, y: currPlayer.y };
 
         // Move player
-        currPlayer.x += currMove.dx * SPEED;
-        currPlayer.y += currMove.dy * SPEED;
+        currPlayer.x += currMove.dx;
+        currPlayer.y += currMove.dy;
 
         // Check if player out of bounds
         if (
             currPlayer.x < 0 ||
-            currPlayer.x > config.boardSize.w - SIZE ||
+            currPlayer.x > config.boardSize.w ||
             currPlayer.y < 0 ||
-            currPlayer.y > config.boardSize.h - SIZE
+            currPlayer.y > config.boardSize.h
         ) {
             currPlayer.x = tempPlayer.x;
             currPlayer.y = tempPlayer.y;
@@ -269,16 +262,8 @@ const gameLoop = () => {
             continue;
         }
 
-        // Find player's 4 corners
-        const bounds = [
-            { x: currPlayer.x, y: currPlayer.y },
-            { x: currPlayer.x + SIZE, y: currPlayer.y },
-            { x: currPlayer.x, y: currPlayer.y + SIZE },
-            { x: currPlayer.x + SIZE, y: currPlayer.y + SIZE },
-        ];
-
         // Get collisions
-        var collision = checkWallAndVc(currPlayer, bounds);
+        var collision = checkWallAndVc(currPlayer, currPlayer);
 
         // If hit wall continue
         if (collision.wall) {
@@ -289,9 +274,9 @@ const gameLoop = () => {
         }
 
         // Leave VC if in one and left area
-        if (currPlayer.inVc && !collision.vc) {
+        if (currPlayer.currVc !== null && !collision.vc) {
             bot.leaveVc(currPlayer.user.id);
-            currPlayer.inVc = false;
+            currPlayer.currVc = null;
         }
 
         // Update player in the list
@@ -304,23 +289,23 @@ const gameLoop = () => {
 
 // Check if player ran into wall or is in VC!
 // Returns 2 values: wall and vc, both booleans
-function checkWallAndVc(currPlayer, bounds) {
+function checkWallAndVc(currPlayer, p) {
     var out = { wall: false, vc: false };
+    var toJoin = null;
     gameObjects.forEach((obj) => {
-        bounds.forEach((b) => {
-            if (b.x > obj.x && b.x < obj.x + obj.w && b.y > obj.y && b.y < obj.y + obj.h) {
-                if (obj.type === 'wall') {
-                    out.wall = true;
-                } else if (obj.type === 'vc') {
-                    if (!currPlayer.inVc) {
-                        playerJoinVc(currPlayer.user.id, obj.vcName);
-                        currPlayer.inVc = true;
-                    }
-                    out.vc = true;
+        if (p.x >= obj.x && p.x < obj.x + obj.w && p.y >= obj.y && p.y < obj.y + obj.h) {
+            if (obj.type === 'wall') {
+                out.wall = true;
+            } else if (obj.type === 'vc') {
+                if (currPlayer.currVc !== obj.id && !out.vc) {
+                    toJoin = obj.vcId;
+                    currPlayer.currVc = obj.id;
                 }
+                out.vc = true;
             }
-        });
+        }
     });
+    if (toJoin !== null && !out.wall) playerJoinVc(currPlayer.user.id, toJoin);
     return out;
 }
 
@@ -367,6 +352,24 @@ function generateRandomString(length) {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     return text;
+}
+
+/**
+ * Creates a player object
+ * @param {number} x 
+ * @param {number} y 
+ * @param {string} nickname 
+ * @param {object} user 
+ */
+function Player(x, y, nickname, user) {
+    return {
+        x,
+        y,
+        color: randInt(0, 16777215).toString(16).padStart(6, '0'),
+        nickname,
+        user,
+        currVc: null
+    };
 }
 
 module.exports = { run, joinCallback };

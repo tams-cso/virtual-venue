@@ -1,13 +1,14 @@
 const Discord = require('discord.js');
 const config = require('./Config');
-const gameObjects = require('../gameObjects.json');
 
 const client = new Discord.Client();
+var gameObjects;
 
 /**
  * The main function for starting the discord bot
  */
-const runBot = () => {
+const runBot = (gameObjs) => {
+    gameObjects = gameObjs;
     client.on('ready', () => console.log(`Logged in as ${client.user.tag}`));
 
     // Login with the bot token provided in creds.json
@@ -96,7 +97,7 @@ const createVcs = async (message, config) => {
     message.guild.channels.create('main', { type: 'voice', parent: gameCat });
     gameObjects.forEach((obj) => {
         if (obj.type == 'vc') {
-            message.guild.channels.create(obj.vcName, {
+            message.guild.channels.create(obj.vcId, {
                 type: 'voice',
                 parent: gameCat,
                 permissionOverwrites: [{ id: message.guild.id, deny: ['CONNECT'] }],
@@ -155,10 +156,15 @@ const userInGuild = (userId) => {
  */
 const joinVc = async (userId, vcName) => {
     var guild = client.guilds.cache.first();
+    var gameCat = guild.channels.cache
+        .filter((channel) => channel.type === 'category')
+        .find((channel) => channel.name === config.gameCategoryName);
+        
     var memberVoice = guild.members.cache.find((member) => member.id === userId).voice;
-    var mainVc = guild.channels.cache.find((channel) => channel.name === 'main');
+    if (memberVoice === null) return false;
 
-    if (memberVoice === null || memberVoice.channelID !== mainVc.id) return false;
+    var gameVc = guild.channels.cache.find((channel) => (channel.parent !== null && channel.parent.id === gameCat.id && channel.id === memberVoice.channelID));
+    if (gameVc === null) return false;
 
     var vc = guild.channels.cache.find((channel) => channel.name === vcName);
 

@@ -15,9 +15,9 @@ var shift = false;
 var notInGame = true;
 // var lastMove = new Date().getTime();
 
-const SIZE = 32; // Size of player in pixels
-const SPEED = 16; // # of pixels moved per frame
 const FPS = 20; // Frames per second
+const GRID = 32; // Grid size - pixel to coordinate square ratio
+const SIZE = GRID; // Size of player in pixels
 
 // When the page loads
 function getLogin() {
@@ -151,8 +151,8 @@ socket.on('update', (moveList) => {
 
     for (var i in moveList) {
         var move = moveList[i];
-        playerList[i].x += move.dx * SPEED;
-        playerList[i].y += move.dy * SPEED;
+        playerList[i].x += move.dx;
+        playerList[i].y += move.dy;
     }
 
     // Update coords
@@ -185,14 +185,14 @@ socket.on('failVc', () => {
 });
 
 function moveStuff() {
-    var shift = movements.shift;
+    var shift = movements.shift; // TODO: completely get rid of the shift thing
     var moveObj = { id: discordId, dx: 0, dy: 0 };
 
     // Move player
-    if (movements['a'] || movements['arrowleft']) moveObj.dx = shift ? -2 : -1;
-    else if (movements['d'] || movements['arrowright']) moveObj.dx = shift ? 2 : 1;
-    if (movements['w'] || movements['arrowup']) moveObj.dy = shift ? -2 : -1;
-    else if (movements['s'] || movements['arrowdown']) moveObj.dy = shift ? 2 : 1;
+    if (movements['a'] || movements['arrowleft']) moveObj.dx = -1;
+    else if (movements['d'] || movements['arrowright']) moveObj.dx = 1;
+    if (movements['w'] || movements['arrowup']) moveObj.dy = -1;
+    else if (movements['s'] || movements['arrowdown']) moveObj.dy = 1;
 
     // If move, emit
     if (moveObj.dx !== 0 || moveObj.dy !== 0) socket.emit('move', moveObj);
@@ -204,17 +204,17 @@ function randInt(min, max) {
 
 function drawBackground() {
     gameObjects.forEach((obj) => {
-        ctx.fillStyle = obj.color;
-        ctx.fillRect(obj.x - viewport.x, obj.y - viewport.y, obj.w, obj.h);
+        ctx.fillStyle = '#' + obj.color;
+        ctx.fillRect(obj.x * GRID - viewport.x, obj.y * GRID - viewport.y, obj.w * GRID, obj.h * GRID);
 
         if (obj.type == 'vc') {
             ctx.textAlign = 'center';
             ctx.fillStyle = '#000000';
-            ctx.font = '30px cursive';
+            ctx.font = '30px cursive'; // TODO: Might have to adjust for grid size
             ctx.fillText(
-                obj.vcName,
-                obj.x + obj.w / 2 - viewport.x,
-                obj.y + obj.h / 2 - viewport.y
+                obj.displayName,
+                obj.x * GRID + obj.w * GRID / 2 - viewport.x,
+                obj.y * GRID + obj.h * GRID / 2 - viewport.y
             );
         }
     });
@@ -224,8 +224,8 @@ function draw() {
     if (discordId === null) return;
 
     viewport = {
-        x: Math.max(playerList[discordId].x - center.x, 0),
-        y: Math.max(playerList[discordId].y - center.y, 0),
+        x: Math.max(playerList[discordId].x * GRID - center.x, 0),
+        y: Math.max(playerList[discordId].y * GRID - center.y, 0),
     };
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -236,19 +236,19 @@ function draw() {
         var p = playerList[i];
 
         ctx.fillStyle = '#' + p.color;
-        ctx.fillRect(p.x - viewport.x, p.y - viewport.y, SIZE, SIZE);
+        ctx.fillRect(p.x * GRID - viewport.x, p.y * GRID - viewport.y, SIZE, SIZE);
 
         ctx.textAlign = 'center';
         ctx.fillStyle = '#000000';
         ctx.font = '20px sans-serif';
-        ctx.fillText(p.nickname, p.x + SIZE / 2 - viewport.x, p.y + SIZE / 2 - 35 - viewport.y);
+        ctx.fillText(p.nickname, p.x * GRID + SIZE / 2 - viewport.x, p.y * GRID + SIZE / 2 - 35 - viewport.y);
 
         ctx.fillStyle = '#aaaaaa';
         ctx.font = '14px sans-serif';
         ctx.fillText(
             `${p.user.username}#${p.user.discriminator}`,
-            p.x + SIZE / 2 - viewport.x,
-            p.y + SIZE / 2 - 20 - viewport.y
+            p.x * GRID + SIZE / 2 - viewport.x,
+            p.y * GRID + SIZE / 2 - 20 - viewport.y
         );
     }
 }

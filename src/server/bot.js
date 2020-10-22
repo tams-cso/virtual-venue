@@ -161,7 +161,7 @@ const joinVc = async (userId, vcName) => {
         .find((channel) => channel.name === config.gameCategoryName);
         
     var memberVoice = guild.members.cache.find((member) => member.id === userId).voice;
-    if (memberVoice === null) return false;
+    if (memberVoice.channelID === undefined) return false;
 
     var gameVc = guild.channels.cache.find((channel) => (channel.parent !== null && channel.parent.id === gameCat.id && channel.id === memberVoice.channelID));
     if (gameVc === null) return false;

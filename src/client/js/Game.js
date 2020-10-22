@@ -235,8 +235,10 @@ function draw() {
     for (var i in playerList) {
         var p = playerList[i];
 
-        ctx.fillStyle = '#' + p.color;
+        ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(p.x * GRID - viewport.x, p.y * GRID - viewport.y, SIZE, SIZE);
+        ctx.fillStyle = '#' + p.color;
+        ctx.fillRect(p.x * GRID - viewport.x + 2, p.y * GRID - viewport.y + 2, SIZE - 4, SIZE - 4);
 
         ctx.textAlign = 'center';
         ctx.fillStyle = '#000000';

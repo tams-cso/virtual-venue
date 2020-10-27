@@ -156,6 +156,7 @@ const userInGuild = async (userId) => {
  * @returns {Promise<boolean>} True if vc was successfully joined
  */
 const joinVc = async (userId, vcName) => {
+    console.log(userId + " joined " + vcName);
     var guild = client.guilds.cache.first();
     var gameCat = guild.channels.cache
         .filter((channel) => channel.type === 'category')

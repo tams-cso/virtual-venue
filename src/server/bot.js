@@ -143,7 +143,7 @@ const userInGuild = async (userId) => {
     // Maybe just an internal server error? (contact administrator) smth like that
     var guild = client.guilds.cache.first();
     const inThis = await guild.members.fetch(userId);
-    if (inThis === undefined) return false;
+    if (inThis === undefined) return false; // TODO: Fix this
     return true;
 };
 

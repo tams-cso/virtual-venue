@@ -55,7 +55,6 @@ const runBot = (gameObjs) => {
  * @param {Discord.Message} message
  */
 const help = (message) => {
-    console.log("wgnfeijrghsejr");
     message.channel.send(
         message.author.toString() +
             `
@@ -138,12 +137,14 @@ const removeVcs = async (message, config) => {
  * @param {string} userId The ID of the user to check
  * @returns {boolean} If the user is in the guild, it returns true
  */
-const userInGuild = (userId) => {
+const userInGuild = async (userId) => {
     // TODO: Check if there is more than one guild that the bot is in
     // but idk that might be hard bc idk what to send to the user
     // Maybe just an internal server error? (contact administrator) smth like that
     var guild = client.guilds.cache.first();
-    return guild.members.cache.find((member) => member.user.id === userId) !== undefined;
+    const inThis = await guild.members.fetch(userId);
+    if (inThis === undefined) return false;
+    return true;
 };
 
 /**
@@ -159,11 +160,16 @@ const joinVc = async (userId, vcName) => {
     var gameCat = guild.channels.cache
         .filter((channel) => channel.type === 'category')
         .find((channel) => channel.name === config.gameCategoryName);
-        
+
     var memberVoice = guild.members.cache.find((member) => member.id === userId).voice;
     if (memberVoice.channelID === undefined) return false;
 
-    var gameVc = guild.channels.cache.find((channel) => (channel.parent !== null && channel.parent.id === gameCat.id && channel.id === memberVoice.channelID));
+    var gameVc = guild.channels.cache.find(
+        (channel) =>
+            channel.parent !== null &&
+            channel.parent.id === gameCat.id &&
+            channel.id === memberVoice.channelID
+    );
     if (gameVc === null) return false;
 
     var vc = guild.channels.cache.find((channel) => channel.name === vcName);

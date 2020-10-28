@@ -93,14 +93,18 @@ const createVcs = async (message, config) => {
         });
     }
 
+    var created = [];
     message.guild.channels.create('main', { type: 'voice', parent: gameCat });
     gameObjects.forEach((obj) => {
         if (obj.type == 'vc') {
-            message.guild.channels.create(obj.vcId, {
-                type: 'voice',
-                parent: gameCat,
-                permissionOverwrites: [{ id: message.guild.id, deny: ['CONNECT'] }],
-            });
+            if (created.indexOf(obj.vcId) === -1) {
+                created.push(obj.vcId);
+                message.guild.channels.create(obj.vcId, {
+                    type: 'voice',
+                    parent: gameCat,
+                    permissionOverwrites: [{ id: message.guild.id, deny: ['CONNECT'] }],
+                });
+            }
         }
     });
     message.channel.send(message.author.toString() + ' created VCs!');

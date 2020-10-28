@@ -5,9 +5,9 @@ vc sacExtra2 53,32,5,3 ffd966 sac
 vc conferenceRoom 64,24,8,11 f6b26b conference-room Conference Room
 vc bathroom1 43,49,5,6 9efcfc bathroom-1 Bathroom #1
 vc bathroom2 43,56,5,6 9efcfc bathroom-2 Bathroom #2
-vc gamer1 33,67,5,17 ff5555 smitty-1
-vc gamer3 43,67,6,17 5555ff smitty-3
-vc gamer2 38,67,5,17 55ff55 smitty-2 GAMER TIME!
+vc gamer1 33,67,5,17 ff5555 smitty
+vc gamer3 43,67,6,17 5555ff smitty
+vc gamer2 38,67,5,17 55ff55 smitty GAMER TIME!
 vc compLab 53,68,16,16 cccccc computer-lab Computer Lab
 wall wall01 6,6,17,1 000000
 wall wall02 6,6,1,73 000000

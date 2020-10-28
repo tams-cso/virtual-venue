@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const config = require('./Config');
 
-const client = new Discord.Client();
+const client = new Discord.Client({ ws: { intents: Discord.Intents.ALL } });
 var gameObjects;
 
 /**
@@ -14,7 +14,7 @@ const runBot = (gameObjs) => {
     // Login with the bot token provided in creds.json
     client.login(config.botToken).then(() => {
         // Virtual Venue only currently supports one Discord server at a time
-        if (client.guilds.cache.size > 1) {
+        if (client.guilds.cache.size != 1) {
             console.error('ERROR: Bot in more than 1 server :(');
             process.exit(-1);
         }
@@ -55,7 +55,6 @@ const runBot = (gameObjs) => {
  * @param {Discord.Message} message
  */
 const help = (message) => {
-    console.log("wgnfeijrghsejr");
     message.channel.send(
         message.author.toString() +
             `
@@ -155,16 +154,20 @@ const userInGuild = (userId) => {
  * @returns {Promise<boolean>} True if vc was successfully joined
  */
 const joinVc = async (userId, vcName) => {
-    console.log(userId + " joined " + vcName);
     var guild = client.guilds.cache.first();
     var gameCat = guild.channels.cache
         .filter((channel) => channel.type === 'category')
         .find((channel) => channel.name === config.gameCategoryName);
-        
+
     var memberVoice = guild.members.cache.find((member) => member.id === userId).voice;
     if (memberVoice.channelID === undefined) return false;
 
-    var gameVc = guild.channels.cache.find((channel) => (channel.parent !== null && channel.parent.id === gameCat.id && channel.id === memberVoice.channelID));
+    var gameVc = guild.channels.cache.find(
+        (channel) =>
+            channel.parent !== null &&
+            channel.parent.id === gameCat.id &&
+            channel.id === memberVoice.channelID
+    );
     if (gameVc === null) return false;
 
     var vc = guild.channels.cache.find((channel) => channel.name === vcName);

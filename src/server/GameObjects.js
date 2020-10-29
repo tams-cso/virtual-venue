@@ -6,6 +6,18 @@ module.exports = () => {
     const rawInput = fs.readFileSync(path.join(__dirname, '..', 'gameObjects.txt'), 'utf-8');
     const lines = rawInput.split(/\n/);
 
+    const rawParams = lines.shift().split(' ');
+    const boardParams = {
+        start: {
+            x: Number(rawParams[0]),
+            y: Number(rawParams[1]),
+        },
+        boardSize: {
+            w: Number(rawParams[2]),
+            h: Number(rawParams[3]),
+        },
+    };
+
     lines.forEach((line) => {
         var args = line.split(' ');
         var vcId = '';
@@ -29,5 +41,5 @@ module.exports = () => {
             displayName,
         });
     });
-    return gameObjects;
+    return { gameObjects, boardParams };
 };

@@ -4,6 +4,7 @@ const config = require('./Config');
 const bot = require('./bot');
 
 var gameObjects;
+var boardParams;
 var authMap = {};
 var joinMap = {};
 var timeoutMap = {};
@@ -17,8 +18,9 @@ var io;
 const TIMEOUT_MAX = 600000; // 10 minutes
 const FPS = 25; // Frames per second
 
-const run = async (server, gameObjs) => {
+const run = async (server, gameObjs, boardPar) => {
     gameObjects = gameObjs;
+    boardParams = boardPar;
 
     io = require('socket.io')(server, {});
 
@@ -175,7 +177,7 @@ const run = async (server, gameObjs) => {
             // Randomize the color TOOD: Player color selector?
             var tempPlayer;
             if (discordObject.player === null) {
-                tempPlayer = Player(config.start.x, config.start.y, data.nick, discordObject.userInfo);
+                tempPlayer = Player(boardParams.start.x, boardParams.start.y, data.nick, discordObject.userInfo);
                 discordList[discordObject.userInfo.id].player = tempPlayer;
             } else {
                 tempPlayer = discordObject.player;
@@ -199,7 +201,7 @@ const run = async (server, gameObjs) => {
                 discordId: discordObject.userInfo.id,
                 players,
                 gameObjects,
-                boardSize: config.boardSize,
+                boardSize: boardParams.gameSize,
             });
 
             // Tell everyone that someone joined
@@ -252,9 +254,9 @@ const gameLoop = () => {
         // Check if player out of bounds
         if (
             currPlayer.x < 0 ||
-            currPlayer.x > config.boardSize.w ||
+            currPlayer.x > boardParams.boardSize.w ||
             currPlayer.y < 0 ||
-            currPlayer.y > config.boardSize.h
+            currPlayer.y > boardParams.boardSize.h
         ) {
             currPlayer.x = tempPlayer.x;
             currPlayer.y = tempPlayer.y;

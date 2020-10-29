@@ -1,3 +1,4 @@
+50 86 100 110
 vc macCafe 30,11,23,24 93c47d mac-cafe MAC CAFE (the dopest cafe on this map)
 vc sacDisplay 58,24,6,11 ffd966 sac SAC
 vc sacExtra1 58,11,4,13 ffd966 sac

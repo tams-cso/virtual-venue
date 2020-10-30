@@ -140,13 +140,16 @@ socket.on('load', (data) => {
 });
 
 // Run when the game updates
-socket.on('update', (move) => {
+socket.on('update', (moveList) => {
     if (notInGame) return;
 
-    // Update if not this player
-    if (move.id !== discordId) {
-        playerList[move.id].x += move.dx;
-        playerList[move.id].y += move.dy;
+    for (m in moveList) {
+        var move = moveList[m];
+        // Update if not this player
+        if (move.id !== discordId) {
+            playerList[move.id].x += move.dx;
+            playerList[move.id].y += move.dy;
+        }
     }
 
     // Update coords
@@ -345,8 +348,14 @@ function draw() {
     if (discordId === null) return;
 
     viewport = {
-        x: Math.min(Math.max(playerList[discordId].x * GRID - center.x, 0), (board.w + 1) * GRID - window.innerWidth),
-        y: Math.min(Math.max(playerList[discordId].y * GRID - center.y, 0), (board.h + 1) * GRID - window.innerHeight),
+        x: Math.min(
+            Math.max(playerList[discordId].x * GRID - center.x, 0),
+            (board.w + 1) * GRID - window.innerWidth
+        ),
+        y: Math.min(
+            Math.max(playerList[discordId].y * GRID - center.y, 0),
+            (board.h + 1) * GRID - window.innerHeight
+        ),
     };
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);

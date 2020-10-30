@@ -11,10 +11,11 @@ var timeoutMap = {};
 var discordList = {};
 var players = {};
 var socketList = {};
-var mainLoopTimer; // TODO: get rid lmao
+var moveList = {};
 var io;
 
 const TIMEOUT_MAX = 600000; // 10 minutes
+const FPS = 18; // Frames per second
 
 const run = async (server, gameObjs, boardPar) => {
     gameObjects = gameObjs;
@@ -213,7 +214,7 @@ const run = async (server, gameObjs, boardPar) => {
             // Update player position in the list
             players[move.id].x += move.dx;
             players[move.id].y += move.dy;
-            io.emit('update', move);
+            moveList[move.id] = move;
         });
 
         socket.on('joinVc', async (data) => {
@@ -240,7 +241,14 @@ const run = async (server, gameObjs, boardPar) => {
             io.emit('playerLeave', socket.id);
         });
     });
+
+    setInterval(updateLoop, 1000 / FPS); // TODO: Add break when no one is on;
 };
+
+const updateLoop = async () => {
+    if (Object.keys(moveList).length === 0) return;
+    io.emit('update', moveList);
+}
 
 // Callback function that's called when the bot detects a new user joining the guild
 const joinCallback = async (id) => {

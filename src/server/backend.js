@@ -17,7 +17,7 @@ var badVc = {};
 var io;
 
 const TIMEOUT_MAX = 600000; // 10 minutes
-const FPS = 18; // Frames per second
+const FPS = 15; // Frames per second
 
 const run = async (server, gameObjs, boardPar) => {
     gameObjects = gameObjs;
@@ -310,10 +310,14 @@ function canMoveAndMove(moveObj) {
         badVc[moveObj.id] = false;
     }
 
+    if (currPlayer.currVc !== null && joinQueue[moveObj.id] !== null) {
+        joinQueue[moveObj.id] = null;
+    }
+
     // Start join queue if player in vc and not in join queue or vc
     // TODO: Be able to move directly to another vc without going into main vc
     // TODO: Add callback for not in main vc
-    if (joinQueue[moveObj.id] === null && collision.toJoin !== null && !badVc[moveObj.id]) {
+    if (joinQueue[moveObj.id] === null && collision.toJoin !== null && !badVc[moveObj.id] && currPlayer.currVc === null) {
         joinQueue[moveObj.id] = collision.toJoin;
         socketList[moveObj.id].emit('startVcQueue');
         return true;
@@ -327,10 +331,14 @@ function canMoveAndMove(moveObj) {
         return true;
     }
 
+    // console.log(joinQueue[moveObj.id])
+    // console.log(currPlayer.currVc)
+    // console.log(collision.vc)
+    // console.log('--------------')
     // If user leaves room
-    if (joinQueue === null && currPlayer.currVc !== null && !collision.vc) {
+    if (joinQueue[moveObj.id] === null && currPlayer.currVc !== null && !collision.vc) {
         bot.leaveVc(moveObj.id);
-        socket.emit('leaveVc', moveObj.id);
+        socketList[moveObj.id].emit('leaveVc', moveObj.id);
         currPlayer.currVc = null;
     }
 

@@ -15,7 +15,7 @@ var notInGame = true;
 var joinQueue = null;
 var messageKey = 0;
 
-const FPS = 30; // Frames per second
+const FPS = 20; // Frames per second
 const GRID = 32; // Grid size - pixel to coordinate square ratio
 const SIZE = GRID; // Size of player in pixels
 
@@ -186,7 +186,6 @@ socket.on('startVcQueue', () => {
     document.getElementById('system-messages').style.display = 'block';
     document.getElementById('system-messages').innerHTML = 'Joining VC in 3 seconds...'; // TODO: Make it countdown
     messageKey = 1;
-    console.log('hi');
     joinQueue = setTimeout(() => {
         socket.emit('joinVc', discordId);
         joinQueue = null;

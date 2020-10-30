@@ -145,11 +145,8 @@ socket.on('update', (moveList) => {
 
     for (m in moveList) {
         var move = moveList[m];
-        // Update if not this player
-        if (move.id !== discordId) {
-            playerList[move.id].x += move.dx;
-            playerList[move.id].y += move.dy;
-        }
+        playerList[move.id].x += move.dx;
+        playerList[move.id].y += move.dy;
     }
 
     // Update coords
@@ -241,6 +238,10 @@ function moveStuff() {
 
     // Emit move to update everyone OwO
     socket.emit('move', moveObj);
+
+    // Reset the player positions
+    currPlayer.x = oldPos.x;
+    currPlayer.y = oldPos.y;
 
     // Start join queue if player in vc and not in join queue or vc
     // TODO: Be able to move directly to another vc without going into main vc

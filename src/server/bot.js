@@ -163,6 +163,7 @@ const joinVc = async (userId, vcName) => {
         .filter((channel) => channel.type === 'category')
         .find((channel) => channel.name === config.gameCategoryName);
 
+    // TODO: Prob don't need all of this stuff because i just catch any errors
     var memberVoice = guild.members.cache.find((member) => member.id === userId).voice;
     if (memberVoice.channelID === undefined) return false;
 

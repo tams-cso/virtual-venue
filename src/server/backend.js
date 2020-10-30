@@ -10,13 +10,11 @@ var joinMap = {};
 var timeoutMap = {};
 var discordList = {};
 var players = {};
-var moveList = {};
 var socketList = {};
 var mainLoopTimer; // TODO: get rid lmao
 var io;
 
 const TIMEOUT_MAX = 600000; // 10 minutes
-const FPS = 25; // Frames per second
 
 const run = async (server, gameObjs, boardPar) => {
     gameObjects = gameObjs;
@@ -69,9 +67,6 @@ const run = async (server, gameObjs, boardPar) => {
             const tokens = await getAccessToken(data.code);
             const userInfo = await getUserInfo(tokens.access_token);
 
-            // Get the function from the bot
-            const { userInGuild, joinVc } = require('./bot');
-
             // If the user is NOT in the discordList
             if (discordList[userInfo.id] === undefined) {
                 // Create a new object to add to the discordList
@@ -82,7 +77,7 @@ const run = async (server, gameObjs, boardPar) => {
                 };
 
                 // Check if the user is in the guild
-                if (userInGuild(userInfo.id)) {
+                if (bot.userInGuild(userInfo.id)) {
                     // Return userInfo if already in guild
                     authMap[data.authId].emit('joined', { userInfo });
                 } else {
@@ -177,7 +172,12 @@ const run = async (server, gameObjs, boardPar) => {
             // Randomize the color TOOD: Player color selector?
             var tempPlayer;
             if (discordObject.player === null) {
-                tempPlayer = Player(boardParams.start.x, boardParams.start.y, data.nick, discordObject.userInfo);
+                tempPlayer = Player(
+                    boardParams.start.x,
+                    boardParams.start.y,
+                    data.nick,
+                    discordObject.userInfo
+                );
                 discordList[discordObject.userInfo.id].player = tempPlayer;
             } else {
                 tempPlayer = discordObject.player;
@@ -201,7 +201,7 @@ const run = async (server, gameObjs, boardPar) => {
                 discordId: discordObject.userInfo.id,
                 players,
                 gameObjects,
-                boardSize: boardParams.gameSize,
+                boardSize: boardParams.boardSize,
             });
 
             // Tell everyone that someone joined
@@ -210,8 +210,21 @@ const run = async (server, gameObjs, boardPar) => {
 
         // When player moves
         socket.on('move', (move) => {
-            moveList[move.id] = move;
+            // Update player position in the list
+            players[move.id].x += move.dx;
+            players[move.id].y += move.dy;
+            socket.emit('update', move);
         });
+
+        socket.on('joinVc', async (data) => {
+            const good = await bot.joinVc(data.id, data.vc).catch(() => {
+                return false;
+            });
+            if (good) socketList[data.id].emit('successVc');
+            else socketList[data.id].emit('failVc');
+        });
+
+        socket.on('leaveVc', (id) => bot.leaveVc(id));
 
         // When the player disconnects from the socket
         socket.on('disconnect', () => {
@@ -227,95 +240,7 @@ const run = async (server, gameObjs, boardPar) => {
             io.emit('playerLeave', socket.id);
         });
     });
-
-    // Create main game loop
-    // TOOD: Stop timeout if no one is left on the server
-    mainLoopTimer = setInterval(gameLoop, 1000 / FPS);
 };
-
-const gameLoop = () => {
-    // Return if movelist empty
-    if (Object.keys(moveList).length === 0) return;
-
-    // Create temp moveList and clear curr movelist
-    var currMoveList = { ...moveList };
-    moveList = {};
-
-    // Loop through movelist
-    for (var i in currMoveList) {
-        var currMove = currMoveList[i];
-        var currPlayer = players[i];
-        var tempPlayer = { x: currPlayer.x, y: currPlayer.y };
-
-        // Move player
-        currPlayer.x += currMove.dx;
-        currPlayer.y += currMove.dy;
-
-        // Check if player out of bounds
-        if (
-            currPlayer.x < 0 ||
-            currPlayer.x > boardParams.boardSize.w ||
-            currPlayer.y < 0 ||
-            currPlayer.y > boardParams.boardSize.h
-        ) {
-            currPlayer.x = tempPlayer.x;
-            currPlayer.y = tempPlayer.y;
-            delete currMoveList[i];
-            continue;
-        }
-
-        // Get collisions
-        var collision = checkWallAndVc(currPlayer, currPlayer);
-
-        // If hit wall continue
-        if (collision.wall) {
-            currPlayer.x = tempPlayer.x;
-            currPlayer.y = tempPlayer.y;
-            delete currMoveList[i];
-            continue;
-        }
-
-        // Leave VC if in one and left area
-        if (currPlayer.currVc !== null && !collision.vc) {
-            bot.leaveVc(currPlayer.user.id);
-            currPlayer.currVc = null;
-        }
-
-        // Update player in the list
-        players[i] = currPlayer;
-    }
-
-    // Update clients
-    io.emit('update', currMoveList);
-};
-
-// Check if player ran into wall or is in VC!
-// Returns 2 values: wall and vc, both booleans
-function checkWallAndVc(currPlayer, p) {
-    var out = { wall: false, vc: false };
-    var toJoin = null;
-    gameObjects.forEach((obj) => {
-        if (p.x >= obj.x && p.x < obj.x + obj.w && p.y >= obj.y && p.y < obj.y + obj.h) {
-            if (obj.type === 'wall') {
-                out.wall = true;
-            } else if (obj.type === 'vc') {
-                if (currPlayer.currVc !== obj.id && !out.vc) {
-                    toJoin = obj.vcId;
-                    currPlayer.currVc = obj.id;
-                }
-                out.vc = true;
-            }
-        }
-    });
-    if (toJoin !== null && !out.wall) playerJoinVc(currPlayer.user.id, toJoin);
-    return out;
-}
-
-async function playerJoinVc(id, vc) {
-    const good = await bot.joinVc(id, vc);
-    if (good) socketList[id].emit('successVc');
-    else socketList[id].emit('nullVc');
-}
 
 // Callback function that's called when the bot detects a new user joining the guild
 const joinCallback = async (id) => {
@@ -358,10 +283,10 @@ function generateRandomString(length) {
 
 /**
  * Creates a player object
- * @param {number} x 
- * @param {number} y 
- * @param {string} nickname 
- * @param {object} user 
+ * @param {number} x
+ * @param {number} y
+ * @param {string} nickname
+ * @param {object} user
  */
 function Player(x, y, nickname, user) {
     return {
@@ -370,7 +295,7 @@ function Player(x, y, nickname, user) {
         color: randInt(0, 16777215).toString(16).padStart(6, '0'),
         nickname,
         user,
-        currVc: null
+        currVc: null,
     };
 }
 

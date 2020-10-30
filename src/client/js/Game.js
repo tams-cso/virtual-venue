@@ -171,7 +171,7 @@ function resize() {
 
 socket.on('successVc', () => {
     document.getElementById('system-messages').style.display = 'block';
-    document.getElementById('system-messages').innerHTML = "Joined VC successfully!";
+    document.getElementById('system-messages').innerHTML = 'Joined VC successfully!';
     messageKey = 5;
     setTimeout(() => {
         if (messageKey === 5) {
@@ -300,7 +300,8 @@ function checkWallAndVc(p) {
             if (obj.type === 'wall') {
                 out.wall = true;
             } else if (obj.type === 'vc') {
-                if (p.currVc !== obj.id && !out.vc) { // TODO: Fix this to check for multi-block vcs
+                if (p.currVc !== obj.id && !out.vc) {
+                    // TODO: Fix this to check for multi-block vcs
                     out.toJoin = obj.vcId;
                     p.currVc = obj.id;
                 }
@@ -317,15 +318,17 @@ function randInt(min, max) {
 
 function drawBackground() {
     gameObjects.forEach((obj) => {
-        ctx.fillStyle = '#' + obj.color;
-        ctx.fillRect(
-            obj.x * GRID - viewport.x,
-            obj.y * GRID - viewport.y,
-            obj.w * GRID,
-            obj.h * GRID
-        );
+        if (obj.color !== 'none') {
+            ctx.fillStyle = '#' + obj.color;
+            ctx.fillRect(
+                obj.x * GRID - viewport.x,
+                obj.y * GRID - viewport.y,
+                obj.w * GRID,
+                obj.h * GRID
+            );
+        }
 
-        if (obj.type == 'vc') {
+        if (obj.type === 'vc' || obj.type === 'background') {
             ctx.textAlign = 'center';
             ctx.fillStyle = '#000000';
             ctx.font = '30px cursive'; // TODO: Might have to adjust for grid size

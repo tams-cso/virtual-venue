@@ -51,6 +51,7 @@ PREFIX=[prefix to be used (eg. '>>')]
     ```
     
     - See the current file for an example and modify it to suit your needs!
+    - **The lower in the file, the higher layer it's on (first line is on the bottom when drawing)**
 
 ## To run:
 

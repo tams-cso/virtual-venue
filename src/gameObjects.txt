@@ -1,15 +1,9 @@
 50 86 100 110
 vc macCafe 30,11,23,24 93c47d mac-cafe MAC CAFE (the dopest cafe on this map)
-vc sacDisplay 58,24,6,11 ffd966 sac SAC
-vc sacExtra1 58,11,4,13 ffd966 sac
-vc sacExtra2 53,32,5,3 ffd966 sac
-vc conferenceRoom 64,24,8,11 f6b26b conference-room Conference Room
 vc bathroom1 43,49,5,6 9efcfc bathroom-1 Bathroom #1
 vc bathroom2 43,56,5,6 9efcfc bathroom-2 Bathroom #2
-vc gamer1 33,67,5,17 ff5555 smitty
-vc gamer3 43,67,6,17 5555ff smitty
-vc gamer2 38,67,5,17 55ff55 smitty GAMER TIME!
-vc compLab 53,68,16,16 cccccc computer-lab Computer Lab
+vc gamer 33,68,15,17 55ff55 smitty
+vc compLab 54,68,15,16 cccccc computer-lab Computer Lab
 wall wall01 6,6,17,1 000000
 wall wall02 6,6,1,73 000000
 wall wall03 22,6,1,57 000000
@@ -55,4 +49,9 @@ wall wall42 42,48,7,1 000000
 wall wall43 48,48,1,3 000000
 wall wall44 48,53,1,4 000000
 wall wall45 48,59,1,4 000000
-wall wall46 42,55,7,1 000000
+wall wall46 42,55,7,1 000000 
+background gamerL 33,68,5,16 ff5555
+background gamerR 43,68,5,16 5555ff
+background gamerText 40,73,1,1 none G A M E R  T I M E !
+background frontDesk 61,54,1,1 none Front Desk
+background frontDesk2 61,55,1,1 none (Not supposed to be in here smh)

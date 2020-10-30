@@ -25,8 +25,14 @@ module.exports = () => {
         var shape = args[2].split(',');
         if (args[0] === 'vc') {
             vcId = args[4];
+            if (args.length > 5) {
+                displayName = line.substring(
+                    line.indexOf(args[3] + ' ' + args[4]) + args[3].length + args[4].length + 2
+                );
+            }
+        } else if (args.length > 4) {
             displayName = line.substring(
-                line.indexOf(args[3] + ' ' + args[4]) + args[3].length + args[4].length + 2
+                line.indexOf(args[2] + ' ' + args[3]) + args[2].length + args[3].length + 2
             );
         }
         gameObjects.push({

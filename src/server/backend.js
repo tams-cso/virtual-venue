@@ -215,7 +215,6 @@ const run = async (server, gameObjs, boardPar) => {
             players[move.id].x += move.dx;
             players[move.id].y += move.dy;
             moveList[move.id] = move;
-            moveList = {};
         });
 
         socket.on('joinVc', async (data) => {
@@ -249,6 +248,7 @@ const run = async (server, gameObjs, boardPar) => {
 const updateLoop = async () => {
     if (Object.keys(moveList).length === 0) return;
     io.emit('update', moveList);
+    moveList = {};
 }
 
 // Callback function that's called when the bot detects a new user joining the guild

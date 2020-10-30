@@ -10,8 +10,7 @@ var gameObjects;
 var board = { w: 0, h: 0 };
 var viewport = { x: 0, y: 0 };
 var center = { x: 0, y: 0 };
-var movements = { shift: false };
-var shift = false;
+var movements = {};
 var notInGame = true;
 // var lastMove = new Date().getTime();
 
@@ -132,14 +131,8 @@ socket.on('load', (data) => {
 
     // Stop if window loses focus
     window.onblur = () => {
-        movements = { shift: false };
+        movements = {};
     };
-
-    // // Make sure they stop if they leave
-    // setInterval(() => {
-    //     var now = new Date().getTime();
-    //     if (now - lastMove > 500) movements = { shift: false };
-    // }, 500);
 
     // Movement loop
     setInterval(moveStuff, 1000 / FPS);
@@ -185,7 +178,6 @@ socket.on('failVc', () => {
 });
 
 function moveStuff() {
-    var shift = movements.shift; // TODO: completely get rid of the shift thing
     var moveObj = { id: discordId, dx: 0, dy: 0 };
 
     // Move player

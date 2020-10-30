@@ -13,6 +13,7 @@ var playerList = {};
 var socketList = {};
 var moveList = [];
 var joinQueue = {};
+var badVc = {};
 var io;
 
 const TIMEOUT_MAX = 600000; // 10 minutes
@@ -189,10 +190,11 @@ const run = async (server, gameObjs, boardPar) => {
             // Add the player to the players list
             playerList[discordObject.userInfo.id] = tempPlayer;
 
-            // Set the socket ID and add to socket list; also instantiate joinQueue object
+            // Set the socket ID and add to socket list; also instantiate other maps
             socket.id = discordObject.userInfo.id;
             socketList[socket.id] = socket;
-            joinQueue[socket.id] = false;
+            joinQueue[socket.id] = null;
+            badVc[socket.id] = false;
 
             // Log the discord tag of the user who joined the game
             console.log(
@@ -217,12 +219,19 @@ const run = async (server, gameObjs, boardPar) => {
             if (newMove.dy !== 0) moveList.push({ id: newMove.id, dy: newMove.dy, dx: 0 });
         });
 
-        socket.on('joinVc', async (data) => {
-            const good = await bot.joinVc(data.id, data.vc).catch(() => {
+        socket.on('joinVc', async (id) => {
+            var vc = joinQueue[id];
+            joinQueue[id] = null;
+            const good = await bot.joinVc(id, vc).catch(() => {
                 return false;
             });
-            if (good) socketList[data.id].emit('successVc');
-            else socketList[data.id].emit('failVc');
+            if (good) {
+                playerList[id].currVc = vc;
+                socketList[id].emit('successVc');
+            } else {
+                badVc[id] = true;
+                socketList[id].emit('failVc');
+            }
         });
 
         // When the player disconnects from the socket
@@ -238,6 +247,7 @@ const run = async (server, gameObjs, boardPar) => {
             delete playerList[socket.id];
             delete socketList[socket.id];
             delete joinQueue[socket.id];
+            delete badVc[socket.id];
             io.emit('playerLeave', socket.id);
         });
     });
@@ -254,7 +264,6 @@ const updateLoop = async () => {
             moveList.splice(i, 1);
             i--;
         }
-        console.log(moveList);
     }
 
     io.emit('update', moveList);
@@ -288,7 +297,7 @@ function canMoveAndMove(moveObj) {
     }
 
     // Get collisions
-    var collision = checkWallAndVc(currPlayer);
+    var collision = checkWallAndVc(currPlayer, moveObj.id);
 
     // If hit wall return
     if (collision.wall) {
@@ -297,18 +306,22 @@ function canMoveAndMove(moveObj) {
         return false;
     }
 
+    if (badVc[moveObj.id] && !collision.vc) {
+        badVc[moveObj.id] = false;
+    }
+
     // Start join queue if player in vc and not in join queue or vc
     // TODO: Be able to move directly to another vc without going into main vc
     // TODO: Add callback for not in main vc
-    if (!joinQueue[moveObj.id] && collision.toJoin) {
-        joinQueue[moveObj.id] = true;
+    if (joinQueue[moveObj.id] === null && collision.toJoin !== null && !badVc[moveObj.id]) {
+        joinQueue[moveObj.id] = collision.toJoin;
         socketList[moveObj.id].emit('startVcQueue');
         return true;
     }
 
     // If in join queue and leaves room
-    if (joinQueue[moveObj.id] && !collision.vc) {
-        joinQueue[moveObj.id] = false;
+    if (joinQueue[moveObj.id] !== null && !collision.vc) {
+        joinQueue[moveObj.id] = null;
         currPlayer.currVc = null;
         socketList[moveObj.id].emit('leaveVcQueue');
         return true;
@@ -327,17 +340,16 @@ function canMoveAndMove(moveObj) {
 // Check if player ran into wall or is in VC!
 // Returns 2 values: wall and vc, both booleans
 // TODO: Fix this documentation and add comments :|
-function checkWallAndVc(p) {
+function checkWallAndVc(p, id) {
     var out = { wall: false, vc: false, toJoin: null };
     gameObjects.forEach((obj) => {
         if (p.x >= obj.x && p.x < obj.x + obj.w && p.y >= obj.y && p.y < obj.y + obj.h) {
             if (obj.type === 'wall') {
                 out.wall = true;
             } else if (obj.type === 'vc') {
-                if (p.currVc !== obj.id && !out.vc) {
+                if (p.currVc !== obj.id && !out.vc && joinQueue[id] === null) {
                     // TODO: Fix this to check for multi-block vcs
                     out.toJoin = obj.vcId;
-                    p.currVc = obj.id;
                 }
                 out.vc = true;
             }

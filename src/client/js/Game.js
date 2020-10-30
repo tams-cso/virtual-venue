@@ -186,8 +186,9 @@ socket.on('startVcQueue', () => {
     document.getElementById('system-messages').style.display = 'block';
     document.getElementById('system-messages').innerHTML = 'Joining VC in 3 seconds...'; // TODO: Make it countdown
     messageKey = 1;
+    console.log('hi');
     joinQueue = setTimeout(() => {
-        socket.emit('joinVc', { id: currPlayer.user.id, vc: collision.toJoin });
+        socket.emit('joinVc', discordId);
         joinQueue = null;
         if (messageKey === 1) {
             document.getElementById('system-messages').style.display = 'none';

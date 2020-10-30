@@ -345,8 +345,8 @@ function draw() {
     if (discordId === null) return;
 
     viewport = {
-        x: Math.max(playerList[discordId].x * GRID - center.x, 0),
-        y: Math.max(playerList[discordId].y * GRID - center.y, 0),
+        x: Math.min(Math.max(playerList[discordId].x * GRID - center.x, 0), (board.w + 1) * GRID - window.innerWidth),
+        y: Math.min(Math.max(playerList[discordId].y * GRID - center.y, 0), (board.h + 1) * GRID - window.innerHeight),
     };
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);

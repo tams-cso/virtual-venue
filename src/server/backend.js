@@ -213,7 +213,7 @@ const run = async (server, gameObjs, boardPar) => {
             // Update player position in the list
             players[move.id].x += move.dx;
             players[move.id].y += move.dy;
-            socket.emit('update', move);
+            io.emit('update', move);
         });
 
         socket.on('joinVc', async (data) => {

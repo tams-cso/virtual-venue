@@ -9,9 +9,10 @@ var authMap = {};
 var joinMap = {};
 var timeoutMap = {};
 var discordList = {};
-var players = {};
+var playerList = {};
 var socketList = {};
-var moveList = {};
+var moveList = [];
+var joinQueue = {};
 var io;
 
 const TIMEOUT_MAX = 600000; // 10 minutes
@@ -102,7 +103,7 @@ const run = async (server, gameObjs, boardPar) => {
                 discordList[userInfo.id].authId = data.authId;
 
                 // Check if the user is already playing a game
-                if (players[userInfo.id] === undefined) {
+                if (playerList[userInfo.id] === undefined) {
                     // If not, emit joined
                     authMap[data.authId].emit('joined');
                 } else {
@@ -186,11 +187,12 @@ const run = async (server, gameObjs, boardPar) => {
             }
 
             // Add the player to the players list
-            players[discordObject.userInfo.id] = tempPlayer;
+            playerList[discordObject.userInfo.id] = tempPlayer;
 
-            // Set the socket ID and add to socket list
+            // Set the socket ID and add to socket list; also instantiate joinQueue object
             socket.id = discordObject.userInfo.id;
             socketList[socket.id] = socket;
+            joinQueue[socket.id] = false;
 
             // Log the discord tag of the user who joined the game
             console.log(
@@ -200,7 +202,7 @@ const run = async (server, gameObjs, boardPar) => {
             // Send game loaded signal to the client with lots of info + the game objects
             socket.emit('load', {
                 discordId: discordObject.userInfo.id,
-                players,
+                players: playerList,
                 gameObjects,
                 boardSize: boardParams.boardSize,
             });
@@ -209,12 +211,10 @@ const run = async (server, gameObjs, boardPar) => {
             io.emit('playerJoin', tempPlayer);
         });
 
-        // When player moves
-        socket.on('move', (move) => {
-            // Update player position in the list
-            players[move.id].x += move.dx;
-            players[move.id].y += move.dy;
-            moveList[move.id] = move;
+        // When player sends list of moves, split into x and y components
+        socket.on('move', (newMove) => {
+            if (newMove.dx !== 0) moveList.push({ id: newMove.id, dx: newMove.dx, dy: 0 });
+            if (newMove.dy !== 0) moveList.push({ id: newMove.id, dy: newMove.dy, dx: 0 });
         });
 
         socket.on('joinVc', async (data) => {
@@ -225,19 +225,19 @@ const run = async (server, gameObjs, boardPar) => {
             else socketList[data.id].emit('failVc');
         });
 
-        socket.on('leaveVc', (id) => bot.leaveVc(id));
-
         // When the player disconnects from the socket
         socket.on('disconnect', () => {
-            if (Object.keys(players).find((key) => key === socket.id) === undefined) return;
+            if (Object.keys(playerList).find((key) => key === socket.id) === undefined) return;
 
             const discordObject = discordList[socket.id];
             console.log(
                 `${discordObject.userInfo.username} #${discordObject.userInfo.discriminator} left the game`
             );
 
-            discordList[socket.id].player = players[socket.id];
-            delete players[socket.id];
+            discordList[socket.id].player = playerList[socket.id];
+            delete playerList[socket.id];
+            delete socketList[socket.id];
+            delete joinQueue[socket.id];
             io.emit('playerLeave', socket.id);
         });
     });
@@ -246,9 +246,104 @@ const run = async (server, gameObjs, boardPar) => {
 };
 
 const updateLoop = async () => {
-    if (Object.keys(moveList).length === 0) return;
+    if (moveList.length === 0) return;
+
+    for (var i = 0; i < moveList.length; i++) {
+        var move = moveList[i];
+        if (!canMoveAndMove(move)) {
+            moveList.splice(i, 1);
+            i--;
+        }
+        console.log(moveList);
+    }
+
     io.emit('update', moveList);
-    moveList = {};
+    moveList = [];
+};
+
+function canMoveAndMove(moveObj) {
+    // Get current player
+    var currPlayer = playerList[moveObj.id];
+
+    // Save temp of player pos
+    var oldPos = {
+        x: currPlayer.x,
+        y: currPlayer.y,
+    };
+
+    // Move player
+    if (moveObj.dx !== 0) currPlayer.x += moveObj.dx;
+    else currPlayer.y += moveObj.dy;
+
+    // Check for out of bounds
+    if (
+        currPlayer.x < 0 ||
+        currPlayer.x > boardParams.boardSize.w ||
+        currPlayer.y < 0 ||
+        currPlayer.y > boardParams.boardSize.h
+    ) {
+        currPlayer.x = oldPos.x;
+        currPlayer.y = oldPos.y;
+        return false;
+    }
+
+    // Get collisions
+    var collision = checkWallAndVc(currPlayer);
+
+    // If hit wall return
+    if (collision.wall) {
+        currPlayer.x = oldPos.x;
+        currPlayer.y = oldPos.y;
+        return false;
+    }
+
+    // Start join queue if player in vc and not in join queue or vc
+    // TODO: Be able to move directly to another vc without going into main vc
+    // TODO: Add callback for not in main vc
+    if (!joinQueue[moveObj.id] && collision.toJoin) {
+        joinQueue[moveObj.id] = true;
+        socketList[moveObj.id].emit('startVcQueue');
+        return true;
+    }
+
+    // If in join queue and leaves room
+    if (joinQueue[moveObj.id] && !collision.vc) {
+        joinQueue[moveObj.id] = false;
+        currPlayer.currVc = null;
+        socketList[moveObj.id].emit('leaveVcQueue');
+        return true;
+    }
+
+    // If user leaves room
+    if (joinQueue === null && currPlayer.currVc !== null && !collision.vc) {
+        bot.leaveVc(moveObj.id);
+        socket.emit('leaveVc', moveObj.id);
+        currPlayer.currVc = null;
+    }
+
+    return true;
+}
+
+// Check if player ran into wall or is in VC!
+// Returns 2 values: wall and vc, both booleans
+// TODO: Fix this documentation and add comments :|
+function checkWallAndVc(p) {
+    var out = { wall: false, vc: false, toJoin: null };
+    gameObjects.forEach((obj) => {
+        if (p.x >= obj.x && p.x < obj.x + obj.w && p.y >= obj.y && p.y < obj.y + obj.h) {
+            if (obj.type === 'wall') {
+                out.wall = true;
+            } else if (obj.type === 'vc') {
+                if (p.currVc !== obj.id && !out.vc) {
+                    // TODO: Fix this to check for multi-block vcs
+                    out.toJoin = obj.vcId;
+                    p.currVc = obj.id;
+                }
+                out.vc = true;
+            }
+        }
+    });
+    return out;
 }
 
 // Callback function that's called when the bot detects a new user joining the guild

@@ -15,7 +15,7 @@ var notInGame = true;
 var joinQueue = null;
 var messageKey = 0;
 
-const FPS = 18; // Frames per second
+const FPS = 30; // Frames per second
 const GRID = 32; // Grid size - pixel to coordinate square ratio
 const SIZE = GRID; // Size of player in pixels
 
@@ -136,18 +136,31 @@ socket.on('load', (data) => {
     };
 
     // Movement loop
-    setInterval(moveStuff, 1000 / FPS);
+    setInterval(sendMoves, 1000 / FPS);
 });
+
+const sendMoves = () => {
+    var moveObj = { id: discordId, dx: 0, dy: 0 };
+
+    // Move player
+    if (movements['a'] || movements['arrowleft']) moveObj.dx = -1;
+    else if (movements['d'] || movements['arrowright']) moveObj.dx = 1;
+    if (movements['w'] || movements['arrowup']) moveObj.dy = -1;
+    else if (movements['s'] || movements['arrowdown']) moveObj.dy = 1;
+
+    if (moveObj.dx === 0 && moveObj.dy === 0) return;
+
+    socket.emit('move', moveObj);
+};
 
 // Run when the game updates
 socket.on('update', (moveList) => {
     if (notInGame) return;
 
-    for (m in moveList) {
-        var move = moveList[m];
+    moveList.forEach((move) => {
         playerList[move.id].x += move.dx;
         playerList[move.id].y += move.dy;
-    }
+    });
 
     // Update coords
     document.getElementById(
@@ -168,6 +181,46 @@ function resize() {
     };
     draw();
 }
+
+socket.on('startVcQueue', () => {
+    document.getElementById('system-messages').style.display = 'block';
+    document.getElementById('system-messages').innerHTML = 'Joining VC in 3 seconds...'; // TODO: Make it countdown
+    messageKey = 1;
+    joinQueue = setTimeout(() => {
+        socket.emit('joinVc', { id: currPlayer.user.id, vc: collision.toJoin });
+        joinQueue = null;
+        if (messageKey === 1) {
+            document.getElementById('system-messages').style.display = 'none';
+            messageKey = 0;
+        }
+    }, 3000);
+});
+
+socket.on('leaveVcQueue', () => {
+    clearTimeout(joinQueue);
+    joinQueue = null;
+    document.getElementById('system-messages').innerHTML =
+        '<div style="color:red">Left VC join queue!</div>';
+    messageKey = 2;
+    setTimeout(() => {
+        if (messageKey === 2) {
+            document.getElementById('system-messages').style.display = 'none';
+            messageKey = 0;
+        }
+    }, 1000);
+});
+
+socket.on('leaveVc', () => {
+    document.getElementById('system-messages').style.display = 'block';
+    document.getElementById('system-messages').innerHTML = 'Left vc';
+    messageKey = 3;
+    setTimeout(() => {
+        if (messageKey === 3) {
+            document.getElementById('system-messages').style.display = 'none';
+            messageKey = 0;
+        }
+    }, 1000);
+})
 
 socket.on('successVc', () => {
     document.getElementById('system-messages').style.display = 'block';
@@ -193,128 +246,6 @@ socket.on('failVc', () => {
         }
     }, 1000);
 });
-
-function moveStuff() {
-    var moveObj = { id: discordId, dx: 0, dy: 0 };
-
-    // Move player
-    if (movements['a'] || movements['arrowleft']) moveObj.dx = -1;
-    else if (movements['d'] || movements['arrowright']) moveObj.dx = 1;
-    if (movements['w'] || movements['arrowup']) moveObj.dy = -1;
-    else if (movements['s'] || movements['arrowdown']) moveObj.dy = 1;
-
-    // Get current player
-    var currPlayer = playerList[discordId];
-
-    // Save temp of player pos
-    var oldPos = {
-        x: currPlayer.x,
-        y: currPlayer.y,
-    };
-
-    // Move player
-    currPlayer.x += moveObj.dx;
-    currPlayer.y += moveObj.dy;
-
-    // Return if didn't move
-    if (moveObj.dx === 0 && moveObj.dy === 0) return;
-
-    // Check for out of bounds
-    if (currPlayer.x < 0 || currPlayer.x > board.w || currPlayer.y < 0 || currPlayer.y > board.h) {
-        currPlayer.x = oldPos.x;
-        currPlayer.y = oldPos.y;
-        return;
-    }
-
-    // Get collisions
-    var collision = checkWallAndVc(currPlayer);
-
-    // If hit wall return
-    if (collision.wall) {
-        currPlayer.x = oldPos.x;
-        currPlayer.y = oldPos.y;
-        return;
-    }
-
-    // Emit move to update everyone OwO
-    socket.emit('move', moveObj);
-
-    // Reset the player positions
-    currPlayer.x = oldPos.x;
-    currPlayer.y = oldPos.y;
-
-    // Start join queue if player in vc and not in join queue or vc
-    // TODO: Be able to move directly to another vc without going into main vc
-    // TODO: Add callback for not in main vc
-    if (joinQueue === null && collision.toJoin) {
-        document.getElementById('system-messages').style.display = 'block';
-        document.getElementById('system-messages').innerHTML = 'Joining VC in 3 seconds...'; // TODO: Make it countdown
-        messageKey = 1;
-        joinQueue = setTimeout(() => {
-            socket.emit('joinVc', { id: currPlayer.user.id, vc: collision.toJoin });
-            joinQueue = null;
-            if (messageKey === 1) {
-                document.getElementById('system-messages').style.display = 'none';
-                messageKey = 0;
-            }
-        }, 3000);
-        return;
-    }
-
-    // If in join queue and leaves room
-    if (joinQueue !== null && !collision.vc) {
-        clearTimeout(joinQueue);
-        joinQueue = null;
-        currPlayer.currVc = null;
-        document.getElementById('system-messages').innerHTML =
-            '<div style="color:red">Left VC join queue!</div>';
-        messageKey = 2;
-        setTimeout(() => {
-            if (messageKey === 2) {
-                document.getElementById('system-messages').style.display = 'none';
-                messageKey = 0;
-            }
-        }, 1000);
-        return;
-    }
-
-    // If user leaves room
-    if (joinQueue === null && currPlayer.currVc !== null && !collision.vc) {
-        socket.emit('leaveVc', currPlayer.user.id);
-        currPlayer.currVc = null;
-        document.getElementById('system-messages').style.display = 'block';
-        document.getElementById('system-messages').innerHTML = 'Left vc';
-        messageKey = 3;
-        setTimeout(() => {
-            if (messageKey === 3) {
-                document.getElementById('system-messages').style.display = 'none';
-                messageKey = 0;
-            }
-        }, 1000);
-    }
-}
-
-// Check if player ran into wall or is in VC!
-// Returns 2 values: wall and vc, both booleans
-// TODO: Fix this documentation and add comments :|
-function checkWallAndVc(p) {
-    var out = { wall: false, vc: false, toJoin: null };
-    gameObjects.forEach((obj) => {
-        if (p.x >= obj.x && p.x < obj.x + obj.w && p.y >= obj.y && p.y < obj.y + obj.h) {
-            if (obj.type === 'wall') {
-                out.wall = true;
-            } else if (obj.type === 'vc') {
-                if (p.currVc !== obj.id && !out.vc) {
-                    // TODO: Fix this to check for multi-block vcs
-                    out.toJoin = obj.vcId;
-                    p.currVc = obj.id;
-                }
-                out.vc = true;
-            }
-        }
-    });
-    return out;
-}
 
 function randInt(min, max) {
     return Math.floor(Math.random() * (max - min) + min);

@@ -19,10 +19,20 @@ html, body {
     text-align: center;
 }
 
-#coords {
+.messages {
     display: none;
     position: fixed;
+    background-color: white;
+    filter: drop-shadow(0 0 2px #777777);
+}
+
+#coords {
     top: 1em;
+    left: 1em;
+}
+
+#system-messages {
+    bottom: 1em;
     left: 1em;
 }
 

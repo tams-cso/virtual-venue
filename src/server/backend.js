@@ -215,6 +215,7 @@ const run = async (server, gameObjs, boardPar) => {
             players[move.id].x += move.dx;
             players[move.id].y += move.dy;
             moveList[move.id] = move;
+            moveList = {};
         });
 
         socket.on('joinVc', async (data) => {

@@ -55,3 +55,23 @@ background gamerR 43,68,5,16 5555ff
 background gamerText 40,73,1,1 none G A M E R  T I M E !
 background frontDesk 61,54,1,1 none Front Desk
 background frontDesk2 61,55,1,1 none (Not supposed to be in here smh)
+background bookRoom 67,13,1,1 none BOOK ROOM
+background russ 67,19,1,1 none SHRINE FOR RUSSSSSSS
+background conference 68,29,1,1 none Conference Room
+background sac 60,30,1,1 none SAC
+background janitor 45,38,1,1 none Janitor's closet
+background stairwell 61,42,1,1 none Stairwell
+background stairwell2 61,43,1,1 none (Closed for Corona)
+background mail 45,44,1,1 none Mailbox Area
+background outside 31,43,1,1 none The scary outside world
+background sam 73.5,56,1,1 none Sam's Room
+background sam2 73.5,57,1,1 none (Closed for Weekend)
+background cdWing 74,64,1,1 none C/D Wing
+background cdWing2 74,65,1,1 none (Closed - Senior guys only)
+background melissa 73.5,72,1,1 none Melissa's Room
+background melissa2 73.5,73,1,1 none (Also Closed for Weekend)
+background melissa3 73.5,74,1,1 none "Gonna eat some ramen"
+background aWing 23,67,1,1 none A Wing
+background aWing2 23,68,1,1 none (Closed - Senior girls only)
+background parking 52,101,1,1 none Stinky parking lots go here I suppose
+background macPark 46,5,1,1 none MAC PARK!!!

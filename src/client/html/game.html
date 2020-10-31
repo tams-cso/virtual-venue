@@ -24,8 +24,10 @@
             </tbody>
         </table>
         <div id="nick-title">Nickname: </div>
-        <input type="text" name="nickname" id="nick-input" />
-        <br><button class="submit" id="enter-button" onclick="enterGame()">Enter</button>
+        <input type="text" name="nickname" id="nick-input" placeholder="Enter a nickname..." maxlength="10"/>
+        <br>
+        <div id="error-message"></div>
+        <button class="submit" id="enter-button" onclick="enterGame()">Enter</button>
     </div>
     <div id="error">
         <h1>There was an error logging you in :(</h1>

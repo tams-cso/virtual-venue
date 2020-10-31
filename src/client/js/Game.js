@@ -14,6 +14,7 @@ var movements = {};
 var notInGame = true;
 var joinQueue = null;
 var messageKey = 0;
+var mainInterval = null;
 
 const FPS = 20; // Frames per second
 const GRID = 32; // Grid size - pixel to coordinate square ratio
@@ -89,8 +90,8 @@ function enterGame() {
     // Get the nickname and check that it isn't empty
     var nick = document.getElementById('nick-input').value;
     if (nick === '') {
-        // If it's empty, update the placeholder with a message
-        document.getElementById('nick-input').placeholder = 'Enter a nickname...';
+        // If it's empty, update error message
+        document.getElementById('error-message').innerHTML = "Please enter a nickname"
         return;
     }
 
@@ -136,7 +137,7 @@ socket.on('load', (data) => {
     };
 
     // Movement loop
-    setInterval(sendMoves, 1000 / FPS);
+    mainInterval = setInterval(sendMoves, 1000 / FPS);
 });
 
 const sendMoves = () => {
@@ -303,8 +304,8 @@ function draw() {
         ctx.fillRect(p.x * GRID - viewport.x + 2, p.y * GRID - viewport.y + 2, SIZE - 4, SIZE - 4);
 
         ctx.textAlign = 'center';
-        ctx.fillStyle = '#000000';
-        ctx.font = '20px sans-serif';
+        ctx.fillStyle = '#555555';
+        ctx.font = '16px sans-serif';
         ctx.fillText(
             p.nickname,
             p.x * GRID + SIZE / 2 - viewport.x,
@@ -312,7 +313,7 @@ function draw() {
         );
 
         ctx.fillStyle = '#aaaaaa';
-        ctx.font = '14px sans-serif';
+        ctx.font = '12px sans-serif';
         ctx.fillText(
             `${p.user.username}#${p.user.discriminator}`,
             p.x * GRID + SIZE / 2 - viewport.x,
@@ -345,4 +346,10 @@ socket.on('playerJoin', (player) => {
     if (notInGame) return;
     playerList[player.user.id] = player;
     draw();
+});
+
+socket.on('disconnect', () => {
+    document.getElementById('system-messages').style.display = 'block';
+    document.getElementById('system-messages').innerHTML = '<div style="color:red;">Backend error :(( Please reload to rejoin</div>';
+    clearInterval(mainInterval);
 });

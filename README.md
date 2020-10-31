@@ -30,7 +30,7 @@ GAME_CATEGORY_NAME=[name of channel category you want the game vcs to be in (eg.
 PREFIX=[prefix to be used (eg. '>>')]
 ```
 
-- Also don't forget to add the redirect URI on the Discord API developer portal!
+- Also don't forget to add the redirect URI on the Discord API developer portal under the API section!
 - For help on how to create environmental variables for this private info in production or in development, check out [this article](https://medium.com/better-programming/how-to-hide-your-api-keys-c2b952bc07e6).
 
 - To create game objects, change the file named `gameObjects.txt` with the following format:

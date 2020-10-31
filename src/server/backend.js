@@ -324,7 +324,7 @@ function canMoveAndMove(moveObj) {
 }
 
 /**
- *
+ * Gets a list of collisions with game objects
  * @param {Player} p The player object
  * @returns {Collision} A collision object
  */

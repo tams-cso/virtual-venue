@@ -7,6 +7,7 @@ var ctx = canvas.getContext('2d');
 var playerList = {};
 var discordId = null;
 var gameObjects;
+var startLocation;
 var board = { w: 0, h: 0 };
 var viewport = { x: 0, y: 0 };
 var center = { x: 0, y: 0 };
@@ -91,7 +92,7 @@ function enterGame() {
     var nick = document.getElementById('nick-input').value;
     if (nick === '') {
         // If it's empty, update error message
-        document.getElementById('error-message').innerHTML = "Please enter a nickname"
+        document.getElementById('error-message').innerHTML = 'Please enter a nickname';
         return;
     }
 
@@ -111,6 +112,7 @@ socket.on('load', (data) => {
 
     // Save the loaded variables
     gameObjects = data.gameObjects;
+    startLocation = data.startLocation;
     discordId = data.discordId;
     playerList = data.players;
     board = data.boardSize;
@@ -188,7 +190,6 @@ socket.on('startVcQueue', () => {
     document.getElementById('system-messages').innerHTML = 'Joining VC in 3 seconds...'; // TODO: Make it countdown
     messageKey = 1;
     joinQueue = setTimeout(() => {
-        socket.emit('joinVc', discordId);
         joinQueue = null;
         if (messageKey === 1) {
             document.getElementById('system-messages').style.display = 'none';
@@ -221,7 +222,7 @@ socket.on('leaveVc', () => {
             messageKey = 0;
         }
     }, 1000);
-})
+});
 
 socket.on('successVc', () => {
     document.getElementById('system-messages').style.display = 'block';
@@ -267,7 +268,7 @@ function drawBackground() {
         if (obj.type === 'vc' || obj.type === 'background') {
             ctx.textAlign = 'center';
             ctx.fillStyle = '#000000';
-            ctx.font = '30px cursive'; // TODO: Might have to adjust for grid size
+            ctx.font = '24px cursive'; // TODO: Might have to adjust for grid size
             ctx.fillText(
                 obj.displayName,
                 obj.x * GRID + (obj.w * GRID) / 2 - viewport.x,
@@ -350,6 +351,19 @@ socket.on('playerJoin', (player) => {
 
 socket.on('disconnect', () => {
     document.getElementById('system-messages').style.display = 'block';
-    document.getElementById('system-messages').innerHTML = '<div style="color:red;">Backend error :(( Please reload to rejoin</div>';
+    document.getElementById('system-messages').innerHTML =
+        '<div style="color:red;">Backend error :(( Please reload to rejoin</div>';
     clearInterval(mainInterval);
+});
+
+socket.on('teleport', (id) => {
+    playerList[id].x = startLocation.x;
+    playerList[id].y = startLocation.y;
+
+    // Update coords
+    document.getElementById(
+        'coords'
+    ).innerHTML = `(${playerList[discordId].x}, ${playerList[discordId].y})`;
+
+    draw();
 });

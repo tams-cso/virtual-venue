@@ -27,7 +27,7 @@ html, body {
 }
 
 #coords {
-    top: 1em;
+    top: 2.5em;
     left: 1em;
 }
 
@@ -39,7 +39,7 @@ html, body {
 
 #players {
     top: 1em;
-    right: 1em;
+    left: 1em;
 }
 
 #loading {

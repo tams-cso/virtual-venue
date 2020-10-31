@@ -37,6 +37,11 @@ html, body {
     filter: drop-shadow(0 0 2px #777777);
 }
 
+#players {
+    top: 1em;
+    right: 1em;
+}
+
 #loading {
     text-align: center;
 }

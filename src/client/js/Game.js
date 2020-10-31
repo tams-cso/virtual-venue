@@ -109,6 +109,7 @@ socket.on('load', (data) => {
     document.getElementById('pregame').style.display = 'none';
     document.getElementById('canvas').style.display = 'block';
     document.getElementById('coords').style.display = 'block';
+    document.getElementById('players').style.display = 'block';
 
     // Save the loaded variables
     gameObjects = data.gameObjects;
@@ -137,6 +138,14 @@ socket.on('load', (data) => {
     window.onblur = () => {
         movements = {};
     };
+
+    // Update coords
+    document.getElementById(
+        'coords'
+    ).innerHTML = `(${playerList[discordId].x}, ${playerList[discordId].y})`;
+    
+    // Set player count
+    document.getElementById('players').innerHTML = `Players: ${Object.keys(playerList).length}`;
 
     // Movement loop
     mainInterval = setInterval(sendMoves, 1000 / FPS);
@@ -340,12 +349,14 @@ function logout() {
 socket.on('playerLeave', (id) => {
     if (notInGame) return;
     delete playerList[id];
+    document.getElementById('players').innerHTML = `Players: ${Object.keys(playerList).length}`;
     draw();
 });
 
 socket.on('playerJoin', (player) => {
     if (notInGame) return;
     playerList[player.user.id] = player;
+    document.getElementById('players').innerHTML = `Players: ${Object.keys(playerList).length}`;
     draw();
 });
 

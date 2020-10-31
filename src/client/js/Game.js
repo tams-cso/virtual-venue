@@ -276,7 +276,7 @@ function drawBackground() {
 
         if (obj.type === 'vc' || obj.type === 'background') {
             ctx.textAlign = 'center';
-            ctx.fillStyle = '#000000';
+            ctx.fillStyle = '#555555';
             ctx.font = '24px cursive'; // TODO: Might have to adjust for grid size
             ctx.fillText(
                 obj.displayName,

@@ -7,18 +7,18 @@
     <link rel="stylesheet" href="/client/css/game.css">
 </head>
 <body onload="getLogin()">
-    <h1 id="loading">Loading...</h1>
+    <div id="loading">Loading...</div>
     <canvas id="canvas"></canvas>
-    <div class="message" id="coords"></div>
-    <div class="message" id="system-messages"></div>
-    <div class="message" id="players"></div>
+    <div class="ui" id="coords"></div>
+    <div class="ui" id="system-messages"></div>
+    <div class="ui" id="players"></div>
     <div id="pregame">
-        <button class="submit" id="enter-button" onclick="logout()">Logout</button>
-        <h1>Join the Game!</h1>
+        <button class="submit" id="logout" onclick="logout()">Logout</button>
+        <h1>Enter the Venue</h1>
         <table id="user-table">
             <tbody>
                 <tr>
-                    <td><img id="avatar" /></td>
+                    <td><div id="avatar-box"><img id="avatar" /></div></td>
                     <td id="username"></td>
                     <td id="discriminator"></td>
                 </tr>

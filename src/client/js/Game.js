@@ -264,8 +264,18 @@ function randInt(min, max) {
 
 function drawBackground() {
     gameObjects.forEach((obj) => {
+        // Skip if there is no color
         if (obj.color !== 'none') {
-            ctx.fillStyle = '#' + obj.color;
+            // Check if the color is just 'solid'
+            if (obj.color === 'solid') {
+                ctx.fillStyle = '#777777';
+            }
+            else {
+                // Or else get the actual color
+                ctx.fillStyle = '#' + obj.color;
+            }
+
+            // Fill the rectangle with color
             ctx.fillRect(
                 obj.x * GRID - viewport.x,
                 obj.y * GRID - viewport.y,
@@ -274,9 +284,10 @@ function drawBackground() {
             );
         }
 
+        // VCs and backgrounds have text
         if (obj.type === 'vc' || obj.type === 'background') {
             ctx.textAlign = 'center';
-            ctx.fillStyle = '#555555';
+            ctx.fillStyle = '#666666';
             ctx.font = '24px cursive'; // TODO: Might have to adjust for grid size
             ctx.fillText(
                 obj.displayName,
@@ -308,13 +319,13 @@ function draw() {
     for (var i in playerList) {
         var p = playerList[i];
 
-        ctx.fillStyle = '#FFFFFF';
+        ctx.fillStyle = '#212121';
         ctx.fillRect(p.x * GRID - viewport.x, p.y * GRID - viewport.y, SIZE, SIZE);
         ctx.fillStyle = '#' + p.color;
         ctx.fillRect(p.x * GRID - viewport.x + 2, p.y * GRID - viewport.y + 2, SIZE - 4, SIZE - 4);
 
         ctx.textAlign = 'center';
-        ctx.fillStyle = '#555555';
+        ctx.fillStyle = '#aaaaaa';
         ctx.font = '16px sans-serif';
         ctx.fillText(
             p.nickname,
@@ -322,7 +333,7 @@ function draw() {
             p.y * GRID + SIZE / 2 - 35 - viewport.y
         );
 
-        ctx.fillStyle = '#aaaaaa';
+        ctx.fillStyle = '#555555';
         ctx.font = '12px sans-serif';
         ctx.fillText(
             `${p.user.username}#${p.user.discriminator}`,

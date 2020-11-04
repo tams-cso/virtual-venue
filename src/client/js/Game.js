@@ -18,7 +18,7 @@ var messageKey = 0;
 var mainInterval = null;
 
 const FPS = 20; // Frames per second
-const GRID = 48; // Grid size - pixel to coordinate square ratio
+const GRID = 40; // Grid size - pixel to coordinate square ratio
 const SIZE = GRID; // Size of player in pixels
 const QUEUE_TIME = 2000; // The amount of time players have to wait before joining a queue
 
@@ -249,7 +249,7 @@ socket.on('failVc', () => {
             document.getElementById('system-messages').style.display = 'none';
             messageKey = 0;
         }
-    }, 3000);
+    }, 5000);
 });
 
 function randInt(min, max) {

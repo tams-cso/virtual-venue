@@ -18,7 +18,7 @@ var messageKey = 0;
 var mainInterval = null;
 
 const FPS = 20; // Frames per second
-const GRID = 32; // Grid size - pixel to coordinate square ratio
+const GRID = 48; // Grid size - pixel to coordinate square ratio
 const SIZE = GRID; // Size of player in pixels
 
 // When the page loads
@@ -268,7 +268,7 @@ function drawBackground() {
         if (obj.color !== 'none') {
             // Check if the color is just 'solid'
             if (obj.color === 'solid') {
-                ctx.fillStyle = '#777777';
+                ctx.fillStyle = '#444444';
             }
             else {
                 // Or else get the actual color
@@ -319,7 +319,7 @@ function draw() {
     for (var i in playerList) {
         var p = playerList[i];
 
-        ctx.fillStyle = '#212121';
+        ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(p.x * GRID - viewport.x, p.y * GRID - viewport.y, SIZE, SIZE);
         ctx.fillStyle = '#' + p.color;
         ctx.fillRect(p.x * GRID - viewport.x + 2, p.y * GRID - viewport.y + 2, SIZE - 4, SIZE - 4);

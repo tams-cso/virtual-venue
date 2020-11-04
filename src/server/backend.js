@@ -145,11 +145,15 @@ const run = async (server, gameObjs, boardPar) => {
 
             // Get nickname if discordList has player
             var nickname = null;
-            if (discordList[userInfo.id].player != null)
-                nickname = discordList[userInfo.id].player.nickname;
+            var color = randInt(0, 16777215).toString(16).padStart(6, '0');
+            if (discordList[userInfo.id].player != null) {
+                var currPlayer = discordList[userInfo.id].player;
+                var nickname = currPlayer.nickname;
+                var color = currPlayer.color;
+            }
 
             // Emit success with userInfo and nickname
-            socket.emit('checkSuccess', { userInfo, nickname });
+            socket.emit('checkSuccess', { userInfo, nickname, color });
         });
 
         // Check if the user has a pre-saved instance
@@ -162,10 +166,17 @@ const run = async (server, gameObjs, boardPar) => {
 
             // Get nickname if discordList has player
             var nickname = null;
-            if (discordList[saveId].player != null) nickname = discordList[saveId].player.nickname;
+            if (discordList[saveId].player != null) {
+                nickname = discordList[saveId].player.nickname;
+                color = discordList[saveId].player.color;
+            }
 
             // Send success message to user
-            socket.emit('checkSuccess', { userInfo: discordList[saveId].userInfo, nickname });
+            socket.emit('checkSuccess', {
+                userInfo: discordList[saveId].userInfo,
+                nickname,
+                color,
+            });
         });
 
         // When client is ready to join game
@@ -174,19 +185,20 @@ const run = async (server, gameObjs, boardPar) => {
             const discordObject = discordList[data.discordId];
 
             // Get the player object or create a new one at starting location
-            // Randomize the color TOOD: Player color selector?
             var tempPlayer;
             if (discordObject.player === null) {
                 tempPlayer = Player(
                     boardParams.start.x,
                     boardParams.start.y,
                     data.nick,
+                    data.color,
                     discordObject.userInfo
                 );
                 discordList[discordObject.userInfo.id].player = tempPlayer;
             } else {
                 tempPlayer = discordObject.player;
                 tempPlayer.nickname = data.nick;
+                tempPlayer.color = data.color;
             }
 
             // Add the player to the players list
@@ -308,7 +320,11 @@ function canMoveAndMove(moveObj) {
             // If in join queue and move to another vc, change join queues
             clearTimeout(joinTimers[moveObj.id]);
             joinQueue(moveObj.id, collision.vc);
-        } else if (joinQueues[moveObj.id] === null && currPlayer.currVc !== null && currPlayer.currVc !== collision.vc) {
+        } else if (
+            joinQueues[moveObj.id] === null &&
+            currPlayer.currVc !== null &&
+            currPlayer.currVc !== collision.vc
+        ) {
             // If in vc and NOT joinQueue, add to join queue of new vc
             joinQueue(moveObj.id, collision.vc);
         }
@@ -420,13 +436,14 @@ function generateRandomString(length) {
  * @param {number} x
  * @param {number} y
  * @param {string} nickname
+ * @param {string} color
  * @param {object} user
  */
-function Player(x, y, nickname, user) {
+function Player(x, y, nickname, color, user) {
     return {
         x,
         y,
-        color: randInt(0, 16777215).toString(16).padStart(6, '0'),
+        color,
         nickname,
         user,
         currVc: null,

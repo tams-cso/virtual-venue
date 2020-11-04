@@ -97,18 +97,27 @@ button:hover {
     font-size: 2em;
 }
 
-#nick-title {
+.label {
     margin: 0.5em 0 0 0;
     font-size: 2em;
+    display: inline;
 }
 
-#nick-input {
+.input-box {
     background-color: transparent;
     border: 1px solid #555555;
     color: #444444;
-    width: 10em;
     font-size: 1.25em;
     padding: 0.25em;
+    display: inline;
+}
+
+#nick-input {
+    width: 10em;
+}
+
+#color-input {
+    width: 3em;
 }
 
 #error-message {

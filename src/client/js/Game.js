@@ -81,6 +81,11 @@ socket.on('checkSuccess', (data) => {
         document.getElementById('nick-input').value = data.nickname;
     }
 
+    console.log(data);
+
+    // Set the color that's auto-generated
+    document.getElementById('color-input').value = `#${data.color}`;
+
     // Listen for enter in text field
     document.getElementById('nick-input').addEventListener('keydown', (event) => {
         // If user clicked enter, enter the game
@@ -97,8 +102,12 @@ function enterGame() {
         return;
     }
 
+    // Get the color
+    var color = document.getElementById('color-input').value.substring(1);
+    console.log(color);
+
     // Tell the server that the client is ready to start the game
-    socket.emit('start', { nick, discordId });
+    socket.emit('start', { nick, color, discordId });
 }
 
 // If the authId check failed and tell user login failed
@@ -144,7 +153,7 @@ socket.on('load', (data) => {
     document.getElementById(
         'coords'
     ).innerHTML = `(${playerList[discordId].x}, ${playerList[discordId].y})`;
-    
+
     // Set player count
     document.getElementById('players').innerHTML = `Players: ${Object.keys(playerList).length}`;
 
@@ -263,8 +272,7 @@ function drawBackground() {
             // Check if the color is just 'solid'
             if (obj.color === 'solid') {
                 ctx.fillStyle = '#444444';
-            }
-            else {
+            } else {
                 // Or else get the actual color
                 ctx.fillStyle = '#' + obj.color;
             }
@@ -327,7 +335,7 @@ function draw() {
             p.y * GRID + SIZE / 2 - 54 - viewport.y
         );
 
-        ctx.fillStyle = '#aaaaaa';
+        ctx.fillStyle = '#777777';
         ctx.font = '20px Kalam';
         ctx.fillText(
             `${p.user.username}#${p.user.discriminator}`,

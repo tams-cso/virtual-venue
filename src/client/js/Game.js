@@ -281,8 +281,8 @@ function drawBackground() {
         // VCs and backgrounds have text
         if (obj.type === 'vc' || obj.type === 'background') {
             ctx.textAlign = 'center';
-            ctx.fillStyle = '#666666';
-            ctx.font = '24px cursive'; // TODO: Might have to adjust for grid size
+            ctx.fillStyle = '#444444';
+            ctx.font = '28px Kalam';
             ctx.fillText(
                 obj.displayName,
                 obj.x * GRID + (obj.w * GRID) / 2 - viewport.x,
@@ -319,20 +319,20 @@ function draw() {
         ctx.fillRect(p.x * GRID - viewport.x + 2, p.y * GRID - viewport.y + 2, SIZE - 4, SIZE - 4);
 
         ctx.textAlign = 'center';
-        ctx.fillStyle = '#aaaaaa';
-        ctx.font = '16px sans-serif';
+        ctx.fillStyle = '#555555';
+        ctx.font = '32px Kalam';
         ctx.fillText(
             p.nickname,
             p.x * GRID + SIZE / 2 - viewport.x,
-            p.y * GRID + SIZE / 2 - 35 - viewport.y
+            p.y * GRID + SIZE / 2 - 54 - viewport.y
         );
 
-        ctx.fillStyle = '#555555';
-        ctx.font = '12px sans-serif';
+        ctx.fillStyle = '#aaaaaa';
+        ctx.font = '20px Kalam';
         ctx.fillText(
             `${p.user.username}#${p.user.discriminator}`,
             p.x * GRID + SIZE / 2 - viewport.x,
-            p.y * GRID + SIZE / 2 - 20 - viewport.y
+            p.y * GRID + SIZE / 2 - 32 - viewport.y
         );
     }
 }

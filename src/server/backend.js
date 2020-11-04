@@ -261,6 +261,11 @@ function canMoveAndMove(moveObj) {
     // Get current player
     var currPlayer = playerList[moveObj.id];
 
+    // Check to see if the player is valid or in a wack state
+    if (currPlayer === undefined || currPlayer === null) {
+        return false;
+    }
+
     // Save temp of player pos
     var oldPos = {
         x: currPlayer.x,

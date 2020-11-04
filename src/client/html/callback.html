@@ -4,18 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Virtual Venue Auth Callback</title>
+    <link href="https://fonts.googleapis.com/css2?family=Grandstander:wght@600&family=Kalam&display=swap" rel="stylesheet"> 
     <link rel="stylesheet" href="/client/css/callback.css">
 </head>
 <body onload="setup()">
-    <h1 id="loading">Loading...</h1>
-    <div id="fail">
+    <h1 class="content" id="loading">Loading...</h1>
+    <div class="content" id="fail">
         <h1>Authentication failed :(((</h1>
         <p>Make sure your cookies are enabled for this site.</p>
         <p>This issue could also be because the authentication processed timed out (10 minutes).</p>
         <p>Please close this window and reload the main window to try again.</p>
         <p>If the problem persists, please contact the developer.</p>
     </div>
-    <div id="success">
+    <div class="content" id="success">
         <h1>Authentication success!</h1>
         <p>Close this window to continue</p>
     </div>

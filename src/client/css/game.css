@@ -5,29 +5,7 @@ body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background-color: #EBEBEB;
-}
-
-.submit {
-    /* button */
-    margin: 0.5em;
-    background-color: #EBEBEB;
-    border: none;
-    color: black;
-    border-radius: 0.5em;
-    padding: 0.25em;
-    font-size: 1em;
-    filter: drop-shadow(0 0 3px #555555);
-}
-
-canvas {
-    display: none;
-    background-color: #EBEBEB;
-}
-
-#error {
-    display: none;
-    text-align: center;
+    background-color: #ebebeb;
 }
 
 h1 {
@@ -36,57 +14,71 @@ h1 {
     color: black;
 }
 
-.ui {
+canvas {
     display: none;
-    position: fixed;
-    background-color: #EBEBEB88;
+    background-color: #ebebeb;
+}
+
+h1,
+p {
     color: black;
-    padding: 0.25em;
-    filter: drop-shadow(0 0 10px #EBEBEB55);
 }
 
-#coords {
-    top: 2.7em;
-    left: 1em;
+h1 {
+    margin: 0.25em;
+    font-size: 3em;
+    color: black;
+    font-family: 'Grandstander', cursive;
 }
 
-#system-messages {
-    bottom: 1em;
-    left: 1em;
-    filter: drop-shadow(0 0 2px #777777);
+p {
+    margin: 0.5em 0;
 }
 
-#players {
-    top: 1em;
-    left: 1em;
+p,
+button {
+    font-family: 'Kalam', cursive;
+    font-size: 1.5em;
 }
 
-#loading {
+div {
+    font-family: 'Kalam', cursive;
+}
+
+button {
+    margin: 0.5em;
+    background-color: #ebebeb;
+    border: 1px solid #666666;
+    color: black;
+    padding: 0.5em;
+    transition: 0.25s;
+}
+
+button:hover {
+    cursor: pointer;
+    filter: drop-shadow(0 0 3px #aaaaaa);
+}
+
+.content {
+    text-align: center;
     margin: 0;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     -ms-transform: translate(-50%, -50%);
-    color: black;
-    font-size: 5em;
+    width: 40%;
 }
 
 #pregame {
     display: none;
-    margin: auto;
-    width: 40em;
-    height: 28em;
-    background-color: #EBEBEB;
-    color: #999999;
-    filter: drop-shadow(0 0 4px #444444);
-    text-align: center;
-    padding: 1em;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    background-color: #ebebeb;
+    filter: drop-shadow(0 0 2px #bbbbbb);
+    padding: 1em 0;
+}
+
+#logout {
+    padding: 0 0.5em !important;
 }
 
 #avatar-box,
@@ -106,22 +98,51 @@ h1 {
 }
 
 #nick-title {
-    margin: 0.5em;
+    margin: 0.5em 0 0 0;
     font-size: 2em;
 }
 
 #nick-input {
     background-color: transparent;
     border: 1px solid #555555;
-    border-radius: 0.5em;
-    color: #dddddd;
+    color: #444444;
+    width: 10em;
     font-size: 1.25em;
     padding: 0.25em;
 }
 
 #error-message {
-    text-align: center;
     color: #ff3131;
     font-size: 1em;
     margin: 0.5em 0 0 0;
+}
+
+#error {
+    display: none;
+}
+
+.ui {
+    display: none;
+    position: fixed;
+    background-color: #ebebeb88;
+    color: black;
+    padding: 0.25em;
+    font-size: 1.5em;
+    filter: drop-shadow(0 0 10px #ebebeb55);
+}
+
+#coords {
+    top: 3.1em;
+    left: 1em;
+}
+
+#system-messages {
+    bottom: 1em;
+    left: 1em;
+    filter: drop-shadow(0 0 2px #777777);
+}
+
+#players {
+    top: 1em;
+    left: 1em;
 }

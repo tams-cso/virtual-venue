@@ -74,7 +74,7 @@ socket.on('checkSuccess', (data) => {
         'avatar'
     ).src = `https://cdn.discordapp.com/avatars/${data.userInfo.id}/${data.userInfo.avatar}.png`;
     document.getElementById('username').innerHTML = data.userInfo.username;
-    document.getElementById('discriminator').innerHTML = '# ' + data.userInfo.discriminator;
+    document.getElementById('discriminator').innerHTML = '#' + data.userInfo.discriminator;
 
     // Set nickname to input if not null
     if (data.nickname != null && data.nickname != undefined) {
@@ -217,7 +217,7 @@ socket.on('leaveVcQueue', () => {
 
 socket.on('leaveVc', () => {
     document.getElementById('system-messages').style.display = 'block';
-    document.getElementById('system-messages').innerHTML = 'Left vc';
+    document.getElementById('system-messages').innerHTML = 'Left all VCs';
     messageKey = 3;
     setTimeout(() => {
         if (messageKey === 3) {

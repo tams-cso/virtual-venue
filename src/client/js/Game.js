@@ -249,7 +249,7 @@ socket.on('failVc', () => {
             document.getElementById('system-messages').style.display = 'none';
             messageKey = 0;
         }
-    }, 1000);
+    }, 3000);
 });
 
 function randInt(min, max) {

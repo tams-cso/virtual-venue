@@ -20,6 +20,7 @@ var mainInterval = null;
 const FPS = 20; // Frames per second
 const GRID = 48; // Grid size - pixel to coordinate square ratio
 const SIZE = GRID; // Size of player in pixels
+const QUEUE_TIME = 2000; // The amount of time players have to wait before joining a queue
 
 // When the page loads
 function getLogin() {
@@ -194,17 +195,10 @@ function resize() {
     draw();
 }
 
-socket.on('startVcQueue', () => {
+socket.on('startVcQueue', (vcName) => {
     document.getElementById('system-messages').style.display = 'block';
-    document.getElementById('system-messages').innerHTML = 'Joining VC in 3 seconds...'; // TODO: Make it countdown
+    document.getElementById('system-messages').innerHTML = `Joining ${vcName} in 2 seconds...`; // TODO: Make it countdown
     messageKey = 1;
-    joinQueue = setTimeout(() => {
-        joinQueue = null;
-        if (messageKey === 1) {
-            document.getElementById('system-messages').style.display = 'none';
-            messageKey = 0;
-        }
-    }, 3000);
 });
 
 socket.on('leaveVcQueue', () => {

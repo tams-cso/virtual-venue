@@ -19,6 +19,7 @@ var io;
 
 const TIMEOUT_MAX = 600000; // 10 minutes
 const FPS = 15; // Frames per second
+const QUEUE_TIME = 2000;
 
 const run = async (server, gameObjs, boardPar) => {
     gameObjects = gameObjs;
@@ -302,22 +303,23 @@ function canMoveAndMove(moveObj) {
     if (collision.vc !== null) {
         if (joinQueues[moveObj.id] === null && currPlayer.currVc === null) {
             // Add player to queue if not in queue and not in vc
-            joinQueues[moveObj.id] = collision.vc;
-            joinTimers[moveObj.id] = setTimeout(() => {
-                joinVc(moveObj.id);
-            }, 3000);
-            socketList[moveObj.id].emit('startVcQueue');
+            joinQueue(moveObj.id, collision.vc);
+        } else if (joinQueues[moveObj.id] !== null && joinQueues[moveObj.id] !== collision.vc) {
+            // If in join queue and move to another vc, change join queues
+            clearTimeout(joinTimers[moveObj.id]);
+            joinQueue(moveObj.id, collision.vc);
+        } else if (joinQueues[moveObj.id] === null && currPlayer.currVc !== null && currPlayer.currVc !== collision.vc) {
+            // If in vc and NOT joinQueue, add to join queue of new vc
+            joinQueue(moveObj.id, collision.vc);
         }
-    }
-    else {
+    } else {
         if (joinQueues[moveObj.id] !== null) {
             // If player leaves room in queue, remove them from the queue
             clearTimeout(joinTimers[moveObj.id]);
             joinQueues[moveObj.id] = null;
             joinTimers[moveObj.id] = null;
             socketList[moveObj.id].emit('leaveVcQueue');
-        }
-        else if (currPlayer.currVc !== null) {
+        } else if (currPlayer.currVc !== null) {
             // If the player leaves a vc
             bot.leaveVc(moveObj.id);
             currPlayer.currVc = null;
@@ -346,6 +348,14 @@ function getCollisions(p) {
     });
     return out;
 }
+
+const joinQueue = (id, vc) => {
+    joinQueues[id] = vc;
+    joinTimers[id] = setTimeout(() => {
+        joinVc(id);
+    }, QUEUE_TIME);
+    socketList[id].emit('startVcQueue', vc);
+};
 
 const joinVc = async (id) => {
     var vc = joinQueues[id];

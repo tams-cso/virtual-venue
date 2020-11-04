@@ -15,6 +15,8 @@ var movements = {};
 var notInGame = true;
 var joinQueue = null;
 var messageKey = 0;
+var joinMessage = null;
+var joinMessageCount = 0;
 var mainInterval = null;
 
 const FPS = 20; // Frames per second
@@ -359,8 +361,19 @@ function logout() {
     window.location = window.origin;
 }
 
-socket.on('playerLeave', (id) => {
+socket.on('playerLeave', (id, userInfo) => {
     if (notInGame) return;
+    document.getElementById('join-message').style.display = 'block';
+    document.getElementById(
+        'join-message'
+    ).innerHTML = `${userInfo.username}#${userInfo.discriminator} left the game`;
+    joinMessageCount++;
+    var oldCount = joinMessageCount;
+    joinMessage = setTimeout(() => {
+        if (joinMessageCount === oldCount) {
+            document.getElementById('join-message').style.display = 'none';
+        }
+    }, 4000);
     delete playerList[id];
     document.getElementById('players').innerHTML = `Players: ${Object.keys(playerList).length}`;
     draw();
@@ -369,6 +382,18 @@ socket.on('playerLeave', (id) => {
 socket.on('playerJoin', (player) => {
     if (notInGame) return;
     playerList[player.user.id] = player;
+    var userInfo = playerList[player.user.id].user;
+    document.getElementById('join-message').style.display = 'block';
+    document.getElementById(
+        'join-message'
+    ).innerHTML = `${userInfo.username}#${userInfo.discriminator} joined the game`;
+    joinMessageCount++;
+    var oldCount = joinMessageCount;
+    joinMessage = setTimeout(() => {
+        if (joinMessageCount === oldCount) {
+            document.getElementById('join-message').style.display = 'none';
+        }
+    }, 4000);
     document.getElementById('players').innerHTML = `Players: ${Object.keys(playerList).length}`;
     draw();
 });

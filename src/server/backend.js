@@ -166,6 +166,7 @@ const run = async (server, gameObjs, boardPar) => {
 
             // Get nickname if discordList has player
             var nickname = null;
+            var color = randInt(0, 16777215).toString(16).padStart(6, '0');
             if (discordList[saveId].player != null) {
                 nickname = discordList[saveId].player.nickname;
                 color = discordList[saveId].player.color;
@@ -244,11 +245,11 @@ const run = async (server, gameObjs, boardPar) => {
             );
 
             discordList[socket.id].player = playerList[socket.id];
+            io.emit('playerLeave', socket.id, playerList[socket.id].userInfo);
             delete playerList[socket.id];
             delete socketList[socket.id];
             delete joinQueues[socket.id];
             delete joinTimers[socket.id];
-            io.emit('playerLeave', socket.id);
         });
     });
 

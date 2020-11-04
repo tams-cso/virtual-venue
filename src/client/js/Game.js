@@ -83,8 +83,6 @@ socket.on('checkSuccess', (data) => {
         document.getElementById('nick-input').value = data.nickname;
     }
 
-    console.log(data);
-
     // Set the color that's auto-generated
     document.getElementById('color-input').value = `#${data.color}`;
 
@@ -106,7 +104,6 @@ function enterGame() {
 
     // Get the color
     var color = document.getElementById('color-input').value.substring(1);
-    console.log(color);
 
     // Tell the server that the client is ready to start the game
     socket.emit('start', { nick, color, discordId });

@@ -245,7 +245,7 @@ const run = async (server, gameObjs, boardPar) => {
             );
 
             discordList[socket.id].player = playerList[socket.id];
-            io.emit('playerLeave', socket.id, playerList[socket.id].userInfo);
+            io.emit('playerLeave', socket.id, playerList[socket.id].user);
             delete playerList[socket.id];
             delete socketList[socket.id];
             delete joinQueues[socket.id];

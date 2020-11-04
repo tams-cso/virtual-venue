@@ -1,9 +1,10 @@
 const fs = require('fs');
 const path = require('path');
+const GAME_OBJ_FILE_NAME = 'hacktams.txt';
 
 module.exports = () => {
     var gameObjects = [];
-    const rawInput = fs.readFileSync(path.join(__dirname, '..', 'gameObjects.txt'), 'utf-8');
+    const rawInput = fs.readFileSync(path.join(__dirname, '..', 'boards', GAME_OBJ_FILE_NAME), 'utf-8');
     const lines = rawInput.split(/\n/);
 
     const rawParams = lines.shift().split(' ');

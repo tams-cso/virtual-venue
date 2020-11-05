@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const config = require('./Config');
 
 const client = new Discord.Client({ ws: { intents: Discord.Intents.ALL } });
+const MAIN_VC = 'virtual-venue-main';
 var gameObjects;
 
 /**
@@ -94,7 +95,11 @@ const createVcs = async (message, config) => {
     }
 
     var created = [];
-    message.guild.channels.create('main', { type: 'voice', parent: gameCat });
+    message.guild.channels.create(MAIN_VC, {
+        type: 'voice',
+        parent: gameCat,
+        permissionOverwrites: [{ id: message.guild.id, deny: ['SPEAK'] }],
+    });
     gameObjects.forEach((obj) => {
         if (obj.type == 'vc') {
             if (created.indexOf(obj.vcId) === -1) {
@@ -102,7 +107,6 @@ const createVcs = async (message, config) => {
                 message.guild.channels.create(obj.vcId, {
                     type: 'voice',
                     parent: gameCat,
-                    permissionOverwrites: [{ id: message.guild.id, deny: ['CONNECT'] }],
                 });
             }
         }
@@ -185,7 +189,7 @@ const leaveVc = (userId) => {
     var guild = client.guilds.cache.first();
     var memberVoice = guild.members.cache.find((member) => member.id === userId).voice;
     var userCurrVcId = memberVoice.channelID;
-    var mainVc = guild.channels.cache.find((channel) => channel.name === 'main');
+    var mainVc = guild.channels.cache.find((channel) => channel.name === MAIN_VC);
     if (userCurrVcId !== undefined) {
         memberVoice.setChannel(mainVc);
     }

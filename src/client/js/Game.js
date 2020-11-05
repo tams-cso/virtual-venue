@@ -20,7 +20,7 @@ var joinMessageCount = 0;
 var mainInterval = null;
 
 const FPS = 20; // Frames per second
-const GRID = 40; // Grid size - pixel to coordinate square ratio
+const GRID = 32; // Grid size - pixel to coordinate square ratio
 const SIZE = GRID; // Size of player in pixels
 const QUEUE_TIME = 2000; // The amount of time players have to wait before joining a queue
 
@@ -327,11 +327,11 @@ function draw() {
 
         ctx.textAlign = 'center';
         ctx.fillStyle = '#555555';
-        ctx.font = '32px Kalam';
+        ctx.font = '28px Kalam';
         ctx.fillText(
             p.nickname,
             p.x * GRID + SIZE / 2 - viewport.x,
-            p.y * GRID + SIZE / 2 - 54 - viewport.y
+            p.y * GRID + SIZE / 2 - 42 - viewport.y
         );
 
         ctx.fillStyle = '#777777';
@@ -339,7 +339,7 @@ function draw() {
         ctx.fillText(
             `${p.user.username}#${p.user.discriminator}`,
             p.x * GRID + SIZE / 2 - viewport.x,
-            p.y * GRID + SIZE / 2 - 32 - viewport.y
+            p.y * GRID + SIZE / 2 - 20 - viewport.y
         );
     }
 }

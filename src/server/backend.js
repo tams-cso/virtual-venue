@@ -414,6 +414,13 @@ const joinCallback = async (id) => {
     delete timeoutMap[id];
 };
 
+const moreGameObjects = async () => {
+    var temp = require('./GameObjects')();
+    gameObjects = temp.gameObjects;
+    boardParams = temp.boardParams;
+    io.emit('newGameObjects', {gameObjects, boardParams});
+}
+
 /**
  * Generates a random number in the range [min,max)
  * @param {number} min
@@ -457,7 +464,7 @@ function Player(x, y, nickname, color, user) {
     };
 }
 
-module.exports = { run, joinCallback };
+module.exports = { run, joinCallback, moreGameObjects };
 
 /**
  * @typedef {Object} Collision

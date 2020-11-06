@@ -42,7 +42,7 @@ const runBot = (gameObjs) => {
         if (args[0] === 'help') help(message);
         else if (args[0] === 'mkvcs') createVcs(message, config);
         else if (args[0] === 'rmvcs') removeVcs(message, config);
-        else if (args[0] === 'upobj') updateGameObjects(message, config);
+        else if (args[0] === 'upobj') updateGameObjects(message);
     });
 
     client.on('guildMemberAdd', (member) => {
@@ -67,6 +67,7 @@ Commands For Virtual Venue Admin
 1. help - "Lists out all the commands"
 2. mkvcs - "Create or clear the GAME category and creates the sub vcs specified in the config.json file"
 3. rmvcs - "Deletes the GAME category and its children"
+4. upobj - "Updates the game objects if changes have been made"
 \`\`\``
     );
 };
@@ -144,10 +145,11 @@ const removeVcs = async (message, config) => {
  * Looks for changes in the game objects and pushes them to all users
  *
  * @param {Discord.Message} message Message object
- * @param {object} config config object
  */
-const updateGameObjects = (message, config) => {
-    
+const updateGameObjects = (message) => {
+    const { moreGameObjects } = require('./backend');
+    moreGameObjects();
+    message.channel.send(`${message.author} Updated game objects!`);
 }
 
 /**

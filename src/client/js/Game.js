@@ -260,6 +260,13 @@ socket.on('failVc', () => {
     }, 5000);
 });
 
+socket.on('newGameObjects', (data) => {
+    gameObjects = data.gameObjects;
+    startLocation = data.boardParams.start;
+    board = data.boardParams.boardSize;
+    draw();
+})
+
 function randInt(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
 }

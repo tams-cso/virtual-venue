@@ -211,9 +211,12 @@ const run = async (server, gameObjs, boardPar) => {
             joinQueues[socket.id] = null;
             joinTimers[socket.id] = null;
 
+            // Get curr datetime
+            var dt = (new Date()).toISOString();
+
             // Log the discord tag of the user who joined the game
             console.log(
-                `${discordObject.userInfo.username} #${discordObject.userInfo.discriminator} joined the game!`
+                `[${dt}] ${discordObject.userInfo.username} #${discordObject.userInfo.discriminator} joined the game!`
             );
 
             // Send game loaded signal to the client with lots of info + the game objects
@@ -239,9 +242,12 @@ const run = async (server, gameObjs, boardPar) => {
         socket.on('disconnect', () => {
             if (Object.keys(playerList).find((key) => key === socket.id) === undefined) return;
 
+            // Get curr datetime
+            var dt = (new Date()).toISOString();
+
             const discordObject = discordList[socket.id];
             console.log(
-                `${discordObject.userInfo.username} #${discordObject.userInfo.discriminator} left the game`
+                `[${dt}] ${discordObject.userInfo.username} #${discordObject.userInfo.discriminator} left the game`
             );
 
             discordList[socket.id].player = playerList[socket.id];

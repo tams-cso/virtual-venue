@@ -20,6 +20,7 @@ module.exports = () => {
     };
 
     lines.forEach((line) => {
+        if (line.length === 0) return;
         var args = line.split(' ');
         var vcId = '';
         var displayName = '';

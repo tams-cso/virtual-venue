@@ -42,6 +42,7 @@ const runBot = (gameObjs) => {
         if (args[0] === 'help') help(message);
         else if (args[0] === 'mkvcs') createVcs(message, config);
         else if (args[0] === 'rmvcs') removeVcs(message, config);
+        else if (args[0] === 'upobj') updateGameObjects(message, config);
     });
 
     client.on('guildMemberAdd', (member) => {
@@ -138,6 +139,16 @@ const removeVcs = async (message, config) => {
         message.channel.send(message.author.toString() + ' removed game VCs!');
     }
 };
+
+/**
+ * Looks for changes in the game objects and pushes them to all users
+ *
+ * @param {Discord.Message} message Message object
+ * @param {object} config config object
+ */
+const updateGameObjects = (message, config) => {
+    
+}
 
 /**
  * Checks in the user is in the current Discord Guild
